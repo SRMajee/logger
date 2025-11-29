@@ -1,0 +1,33 @@
+{
+  "name": "logger-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.24.0",
+  "scripts": {
+    "bootstrap": "pnpm -w install",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "commit": "czg",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@types/node": "^24.10.1",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "czg": "^1.12.0",
+    "husky": "^8.0.0",
+    "nodemon": "^3.1.11",
+    "ts-node-dev": "^2.0.0",
+    "turbo": "latest",
+    "typescript": "5.x",
+    "vitest": "^4.0.14"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

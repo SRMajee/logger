@@ -1,0 +1,8 @@
+Title                               , Status  , Author, Linked Epics             , Date, Decision
+RFC: DistributedContextManager      , Draft   ,       ,                          ,     , ""
+RFC: LogRouter Architecture         , Draft   ,       ,                          ,     , ""
+RFC: SamplingOrchestrator API       , Draft   ,       ,                          ,     , ""
+RFC: WASM JSON Stringifier Prototype, Draft   ,       ,                          ,     , ""
+RFC: V2 AsyncQueue Design           , Accepted,       , DistributedContextManager,     , "Approved and implemented"
+RFC: ALS Context Manager            , Accepted,       , ALSContextManager        ,     , "Approved"
+RFC: RetryPolicy & BackoffStrategy  , Draft   ,       , FormatterPipeline        ,     , ""

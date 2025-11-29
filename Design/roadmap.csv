@@ -1,0 +1,13 @@
+Title,Status,Target Version,Impact,Owner,Target Date,Description
+DistributedContextManager,Proposed,V3,High,,,"TraceId/spanId extraction/injection, W3C traceparent support"
+LogRouter Service,Proposed,V3,High,,,"Standalone ingestion layer for distributed logs"
+AsyncQueue (V2),Accepted,V2,Medium,,,"High-performance batching & flush queue"
+ALSContextManager,Accepted,V2,Medium,,,"AsyncLocalStorage-based context propagation"
+Basic Logger MVP,Done,V1,High,,,"Console, File, Mongo transports with formatters"
+SamplingOrchestrator,Proposed,V3,High,,,"Global sampling rules & dynamic control plane"
+WASM Stringifier,Proposed,V3,Medium,,,"High-speed JSON serialization using WebAssembly"
+RetentionManager,Proposed,V3,Medium,,,"Log retention, archival, compaction"
+Policy Engine,Proposed,V3,Medium,,,"Drop/Sample/Redact rule system"
+CloudTransports,Proposed,V3,Medium,,,"CloudWatch, GCP Logging, Datadog, Azure Monitor"
+FormatterPipeline,Accepted,V2,Medium,,,"Chained formatters pipeline"
+MetricsCollector,Accepted,V2,Medium,,,"Operational metrics for queue, transports, failures"

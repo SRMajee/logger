@@ -1,0 +1,67 @@
+Title,Status,Priority,Version,Epic,Sprint,Estimate,Assignee,Repo/PR,Due,Tags,Notes
+Implement ConsoleTransport,Backlog,P2,V1,Basic Logger MVP,,,,"",,"transport","Basic console logging with timestamp"
+Implement FileTransport,Backlog,P2,V1,Basic Logger MVP,,,,"",,"transport","Write logs to file with rotation"
+Implement MongoTransport,Backlog,P1,V1,Basic Logger MVP,,,,"",,"transport","Insert logs into MongoDB collection"
+Implement JSONFormatter,Backlog,P2,V1,Basic Logger MVP,,,,"",,"formatter","Structured JSON output"
+Implement PrettyFormatter,Backlog,P3,V1,Basic Logger MVP,,,,"",,"formatter","Human-readable logs with colors"
+Implement ContextManager,Backlog,P1,V1,Basic Logger MVP,,,,"",,"core","Basic context propagation"
+Implement logger.info/warn/error/debug/trace,Backlog,P0,V1,Basic Logger MVP,,,,"",,"core","Expose base log level functions"
+Child logger support,Backlog,P1,V1,Basic Logger MVP,,,,"",,"core","logger.child() with inherited context"
+Write basic unit tests for V1,Backlog,P1,V1,Basic Logger MVP,,,,"",,"tests","Coverage target 85%+"
+
+V2 RFC: AsyncQueue Design,Draft,P1,V2,AsyncQueue (V2),,,,"",,"rfc","Design batching, backpressure, flushing"
+Implement AsyncQueue,Backlog,P0,V2,AsyncQueue (V2),,,,"",,"core,queue","High-throughput async queue"
+V2 RFC: ALSContextManager,Draft,P2,V2,ALSContextManager,,,"",,"","core,rfc","AsyncLocalStorage tracing"
+Implement ALSContextManager,Backlog,P0,V2,ALSContextManager,,,"",,"","core","Per-request async context"
+Implement RetryPolicy,Backlog,P1,V2,RetryPolicy & BackoffStrategy,,,"",,"","infra","Retry mechanism for transports"
+Implement BackoffStrategy,Backlog,P1,V2,RetryPolicy & BackoffStrategy,,,"",,"","infra","Exponential backoff"
+Implement FormatterPipeline,Backlog,P1,V2,FormatterPipeline,,,"",,"","formatter","Multiple chained formatting steps"
+Implement RateLimitSampler,Backlog,P2,V2,SamplingOrchestrator,,,"",,"","sampler","Token bucket sampler"
+Implement ProbabilisticSampler,Backlog,P3,V2,SamplingOrchestrator,,,"",,"","sampler","Random sampling"
+Implement DedupSampler,Backlog,P2,V2,SamplingOrchestrator,,,"",,"","sampler","Drop repeated logs"
+Implement MetricsCollector,Backlog,P1,V2,MetricsCollector,,,"",,"","metrics","Track throughput, errors, latency"
+Implement RedisStreamTransport,Backlog,P0,V2,FormatterPipeline,,,"",,"","transport","Redis XADD with batches"
+Implement HTTPTransport,Backlog,P1,V2,FormatterPipeline,,,"",,"","transport","HTTP POST batch transport"
+Add circuit breaker to transports,Backlog,P1,V2,FormatterPipeline,,,"",,"","infra","Fail fast for repeated failures"
+Performance benchmark suite (V2),Backlog,P1,V2,AsyncQueue (V2),,,,"",,"tests","Measure TPS & latency"
+
+RFC: DistributedContextManager,Draft,P0,V3,DistributedContextManager,,,,"",,"core,rfc","TraceId/spanId propagation"
+Implement DistributedContextManager,Backlog,P0,V3,DistributedContextManager,,,"",,"","core","Inject/extract W3C traceparent"
+Implement trace injection for HTTP,Backlog,P1,V3,DistributedContextManager,,,"",,"","core","Add trace headers to outgoing HTTP"
+Implement trace extraction for HTTP,Backlog,P1,V3,DistributedContextManager,,,"",,"","core","Read trace headers on incoming HTTP"
+Implement trace for Kafka/gRPC,Backlog,P2,V3,DistributedContextManager,,,"",,"","core","Cross-service trace propagation"
+
+Implement LogRouter skeleton,Backlog,P1,V3,LogRouter Service,,,"",,"","router","Core ingestion microservice"
+Add HTTP ingestion endpoint,Backlog,P2,V3,LogRouter Service,,,"",,"","router","POST /ingest"
+Add TCP ingestion server,Backlog,P2,V3,LogRouter Service,,,"",,"","router","For high-volume logs"
+Add Redis/Kafka ingestion,Backlog,P1,V3,LogRouter Service,,,"",,"","router","Optional distributed event bus"
+Add enrichment pipeline,Backlog,P2,V3,LogRouter Service,,,"",,"","router","Add service name, env, host, etc."
+
+Implement ElasticsearchTransport,Backlog,P1,V3,CloudTransports,,,"",,"","transport","Bulk write"
+Implement ClickHouseTransport,Backlog,P1,V3,CloudTransports,,,"",,"","transport","Append-only columnar writes"
+Implement KafkaTransport,Backlog,P1,V3,CloudTransports,,,"",,"","transport","Intermediate log storage"
+Implement CloudWatchTransport,Backlog,P1,V3,CloudTransports,,,"",,"","transport","AWS integration"
+Implement GCPLoggingTransport,Backlog,P1,V3,CloudTransports,,,"",,"","transport","Google Cloud Logging"
+Implement DatadogTransport,Backlog,P1,V3,CloudTransports,,,"",,"","transport","Datadog logs API"
+
+Implement RetentionManager,Backlog,P2,V3,RetentionManager,,,"",,"","infra","Retention/archival"
+Add log archival to S3,Backlog,P2,V3,RetentionManager,,,"",,"","infra","Cold storage"
+
+Implement PolicyEngine DSL,Backlog,P1,V3,Policy Engine,,,"",,"","core","Dynamic sampling & redaction rules"
+Implement rule executor,Backlog,P1,V3,Policy Engine,,,"",,"","core","Evaluate policies per log"
+
+Implement WASM Stringifier,Backlog,P1,V3,WASM Stringifier,,,"",,"","performance","Fast JSON serializer"
+Benchmark WASM vs JS stringify,Backlog,P2,V3,WASM Stringifier,,,"",,"","performance","Performance testing"
+
+Implement SamplingOrchestrator,Backlog,P0,V3,SamplingOrchestrator,,,"",,"","sampler","Global distributed sampling"
+Implement sampling rule propagation,Backlog,P1,V3,SamplingOrchestrator,,,"",,"","sampler","Push rules across nodes"
+
+Add cluster leader election,Backlog,P1,V3,LogRouter Service,,,"",,"","infra","Distributed coordination"
+Add node heartbeat system,Backlog,P2,V3,LogRouter Service,,,"",,"","infra","Health checks"
+
+Implement Log Query API (/search),Backlog,P2,V3,LogRouter Service,,,"",,"","api","Search stored logs"
+Implement Log Stream API (/stream),Backlog,P2,V3,LogRouter Service,,,"",,"","api","Real-time stream"
+Implement Log Stats API (/stats),Backlog,P2,V3,LogRouter Service,,,"",,"","api","Aggregate stats"
+
+Write docs for V3 architecture,Backlog,P1,V3,DistributedContextManager,,,"",,"","docs","Architecture + diagrams"
+End-to-end integration tests (V3),Backlog,P1,V3,LogRouter Service,,,"",,"","tests","Cluster tests"

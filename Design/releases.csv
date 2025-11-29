@@ -1,0 +1,4 @@
+Version         , Release Date                                   , Changelog          , Artifacts        , Release Checklist, Tag
+v1.0.0          , Initial release with basic logger (V1). Console, File               , Mongo transports.,                  , "Tag repo; publish npm; write docs"
+v2.0.0          , High-performance features: AsyncQueue          , ALS context        , FormatterPipeline, Metrics.         , "Tag; build; publish; create migration guide"
+v3.0.0 (planned), Enterprise: LogRouter                          , distributed tracing, cloud sinks      , policy engine.   , "Architecture freeze; generate docs; staging release tests"
