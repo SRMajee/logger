@@ -44,7 +44,7 @@ jobs:
           cache: pnpm
 
       - name: 📦 Install dependencies
-        run: pnpm -w install --no-frozen-lockfile
+        run: pnpm install && pnpm -w install --no-frozen-lockfile
 
       - name: 🔨 Build all packages
         # Added --filter to ensure we build dependencies in order
