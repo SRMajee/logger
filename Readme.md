@@ -17,6 +17,7 @@ pnpm add -D @commitlint/config-conventional @commitlint/cli husky
 pnpm dlx husky-init && pnpm install
 npx husky add .husky/commit-msg 'pnpm commitlint --edit $1'
 pnpm dlx commitizen init cz-conventional-changelog --save-dev --save-exact
+pnpm -w add -D concurrently
 
 Nice — here's a compact, copy-pasteable **dev checklist + exact commands** so you can iterate on `@majee/logger-core` and `@majee/logger` quickly. Follow in order.
 
@@ -179,8 +180,12 @@ node -e "const f='packages/logger-core/package.json',p=require(f?fs.readFileSync
 1. `pnpm -w install`
 2. `pnpm --filter @majee/logger-core run watch` (Terminal A)
 3. `pnpm --filter @majee/logger run watch` (Terminal B)
-4. `npx nodemon --watch packages/logger/dist --exec "node packages/logger/dist/examples/basic.js"` (Terminal C)
+4. `pnpm --filter @majee/logger-dev-app` run dev
+` (Terminal C)
 5. Edit TS source in `packages/logger-core/src` or `packages/logger/src` — watcher rebuilds, nodemon restarts example.
+or 
+pnpm dev
+# start coding immediately
 
 ---
 
@@ -193,9 +198,3 @@ node -e "const f='packages/logger-core/package.json',p=require(f?fs.readFileSync
 
 ---
 
-If you want, I can now:
-
-* add the exact `watch`, `dev:ts`, and `test` scripts into your `package.json` files (I’ll output the JSON patches), **or**
-* create a tiny `examples/basic.ts` example and a simple Vitest test file so you can run them immediately.
-
-Which would you like next?

@@ -2,17 +2,15 @@
   "name": "@majee/logger",
   "version": "1.0.0",
   "private": true,
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/entrypoints/index.js",
+  "types": "dist/entrypoints/index.d.ts",
   "dependencies": {
     "@majee/logger-core": "workspace:*"
   },
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json -w",
     "test": "echo \"no tests\"",
-    "clean": "rm -rf dist",
-    "watch": "tsc -b -w",
-    "start:example": "node dist/examples/basic.js",
-    "dev:ts": "ts-node-dev --respawn --transpile-only --project tsconfig.json examples/basic.ts"
+    "clean": "rm -rf dist"
   }
 }

@@ -9,13 +9,15 @@
     "lint": "turbo run lint",
     "clean": "turbo run clean",
     "commit": "czg",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "dev": "concurrently -n CORE,LOGGER,APP -c blue,green,magenta \"pnpm --filter @majee/logger-core run watch\" \"pnpm --filter @majee/logger run watch\" \"pnpm --filter @majee/logger-dev-app run dev\""
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@types/node": "^24.10.1",
     "commitizen": "^4.3.1",
+    "concurrently": "^9.2.1",
     "cz-conventional-changelog": "^3.3.0",
     "czg": "^1.12.0",
     "husky": "^8.0.0",
