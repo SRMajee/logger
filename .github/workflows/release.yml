@@ -1,0 +1,47 @@
+name: Monorepo Publish
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # Needed for provenance if you use it, otherwise optional
+
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.1
+          cache: pnpm
+          # ⚠️ Crucial: This tells GitHub to create an .npmrc with your token
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 📦 Install dependencies
+        run: pnpm -w install --frozen-lockfile
+
+      - name: 🔨 Build all packages
+        # '-r' runs the build script in every package in the workspace
+        run: pnpm -r build
+
+      - name: 📤 Publish Recursive
+        # -r: Recursive (all packages in workspace)
+        # --no-bail: If a package version already exists in npm, skip it and continue (don't fail the job)
+        # --access public: Standard for open source
+        run: pnpm -r publish --access public --no-bail
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

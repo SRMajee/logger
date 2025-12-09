@@ -9,7 +9,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@majee/logger-core": "^0.2.0"
+    "@majee/logger-core": "workspace:*"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
