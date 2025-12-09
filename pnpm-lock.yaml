@@ -68,6 +68,9 @@ importers:
       '@majee/logger':
         specifier: workspace:*
         version: link:../logger
+      mongodb:
+        specifier: ^7.0.0
+        version: 7.0.0
     devDependencies:
       ts-node-dev:
         specifier: ^2.0.0

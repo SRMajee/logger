@@ -9,7 +9,7 @@ import {
 } from "@majee/logger";
 import { MongoClient } from "mongodb";
 
-const MONGO_URI = "mongodb://localhost:27017";
+const MONGO_URI = process.env.MONGO_URL || "mongodb://localhost:27017/logger";
 const DB_NAME = "logs_db";
 const COLLECTION = "app_logs";
 

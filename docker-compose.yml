@@ -1,0 +1,16 @@
+services:
+  # The Database Service
+  mongo:
+    image: mongo:latest
+    container_name: logger_mongo
+    restart: always
+    ports:
+      - "27017:27017" # Maps localhost:27017 -> Container:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongo_data:/data/db # Persist data even if you restart container
+
+volumes:
+  mongo_data:

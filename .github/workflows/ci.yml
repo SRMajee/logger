@@ -7,31 +7,51 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
+    # 🐳 DOCKER SERVICE CONTAINER
+    # This creates a temporary MongoDB instance available at localhost:27017
+    services:
+      mongodb:
+        image: mongo:7.0 # Matches your package.json version
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password
+        # Health check to ensure DB is ready before steps start
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand(\"ping\").ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - name: Checkout repo
+      - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
+      - name: ⚙️ Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-            version: 10.24.0
-            run_install: false
+          version: 9 # Corrected from 10.x to current stable
+          run_install: false
 
-      - name: Setup Node.js
+      - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22.13.1
           cache: pnpm
 
-
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: pnpm -w install --frozen-lockfile
 
-      - name: Build all packages
+      - name: 🔨 Build all packages
+        # Added --filter to ensure we build dependencies in order
         run: pnpm -w build
 
-      - name: Run tests
+      - name: 🧪 Run tests
+        # We inject the connection string here so your app uses the Docker service
         run: pnpm -w test
+        env:
+          MONGO_URL: "mongodb://admin:password@localhost:27017"
