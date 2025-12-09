@@ -13,7 +13,7 @@
     "dev": "concurrently -n CORE,LOGGER,APP -c blue,green,magenta \"pnpm --filter @majee/logger-core run watch\" \"pnpm --filter @majee/logger run watch\" \"pnpm --filter @majee/logger-dev-app run dev\"",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "publish-packages": "pnpm -r publish --access public"
+    "publish-packages": "pnpm -r publish --access public --no-git-checks"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
