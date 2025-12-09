@@ -1,5 +1,5 @@
 
-> @majee/logger@1.0.0 test C:\Projects\Logger\packages\logger
+> @majee/logger@0.2.0 test C:\Projects\Logger\packages\logger
 > echo "no tests"
 
 "no tests"
