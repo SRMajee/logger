@@ -35,7 +35,7 @@ jobs:
           cache: pnpm
 
       - name: 📦 Install Dependencies
-        run: pnpm -w install --frozen-lockfile
+        run: pnpm install && pnpm -w install --frozen-lockfile
 
       - name: 🔨 Build
         run: pnpm -w build
@@ -43,8 +43,8 @@ jobs:
       - name: 🚀 Create Release PR or Publish
         uses: changesets/action@v1
         with:
-          version: pnpm version-packages 
-          publish: pnpm publish-packages 
+          version: pnpm version-packages
+          publish: pnpm publish-packages
           commit: "chore: version packages"
           title: "Version Packages"
         env:
