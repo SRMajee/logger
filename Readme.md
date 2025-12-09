@@ -1,148 +1,224 @@
-# Install workspace deps and link local packages
-```bash
-pnpm -w install
-```
-# Build everything (uses TypeScript project refs)
-```bash
-pnpm -w build
-```
-# Run tests 
-```bash
-pnpm -w test
-```
+# @majee/logger
+
+[![npm version](https://img.shields.io/npm/v/@majee/logger.svg)](https://www.npmjs.com/package/@majee/logger)
+[![npm downloads](https://img.shields.io/npm/dm/@majee/logger.svg)](https://www.npmjs.com/package/@majee/logger)
+[![License](https://img.shields.io/npm/l/@majee/logger.svg)](LICENSE)
+[![CI](https://github.com/SRMajee/logger/actions/workflows/ci.yml/badge.svg)](https://github.com/SRMajee/logger/actions)
 
 
-pnpm -w add -D vitest @types/node
-pnpm -w add -D nodemon ts-node-dev
-pnpm add -D commitizen cz-conventional-changelog
-pnpm add -D czg
-pnpm add -D @commitlint/config-conventional @commitlint/cli husky
-pnpm dlx husky-init && pnpm install
-npx husky add .husky/commit-msg 'pnpm commitlint --edit $1'
-pnpm dlx commitizen init cz-conventional-changelog --save-dev --save-exact
-pnpm -w add -D concurrently
-pnpm --filter @majee/logger-core add mongodb
-pnpm add -Dw @changesets/cli
-pnpm changeset init
+A modern, **modular, TypeScript-first logging system for Node.js**, designed for **scalability, extensibility, and production-grade observability**.
 
-Nice — here's a compact, copy-pasteable **dev checklist + exact commands** so you can iterate on `@majee/logger-core` and `@majee/logger` quickly. Follow in order.
+`@majee/logger` provides a clean, ergonomic logging API, while its internal companion package, `@majee/logger-core`, powers low-level primitives such as:
+
+- Transports (Console, File, MongoDB, custom)
+- Formatters (JSON, Pretty)
+- Log level filtering (global & per-transport)
+- Async context propagation (request-scoped metadata)
+
+This architecture allows:
+
+- ✅ Simple usage for application developers  
+- ✅ Deep extensibility for infrastructure and framework integrations  
+- ✅ Safe evolution toward distributed tracing, metrics, and log routing  
+
+> Consumers only import from `@majee/logger`.  
+> `@majee/logger-core` is published separately for advanced use cases and shared infrastructure.
 
 ---
 
-# Quick checklist (what to do)
+## ⚡ Quick Usage Example
 
-1. Install pnpm (if not installed).
-2. Bootstrap workspace (install deps & link local packages).
-3. Build everything once to verify setup.
-4. Use watch mode on core + logger while coding.
-5. Run an example consumer and restart it automatically when builds change.
-6. Run unit tests (Vitest recommended).
-7. Debug common issues (force reinstall, inspect workspace resolution).
+```ts
+import {
+  Logger,
+  ConsoleTransport,
+  FileTransport,
+  JsonFormatter,
+  PrettyFormatter
+} from "@majee/logger";
+
+const logger = new Logger({
+  level: "debug",
+  formatter: new JsonFormatter(), // default formatter
+  transports: [
+    {
+      transport: new ConsoleTransport(),
+      formatter: new PrettyFormatter(), // pretty console output
+      minLevel: "info"
+    },
+    {
+      transport: new FileTransport("logs/app.log"),
+      minLevel: "debug" // file gets everything
+    }
+  ]
+});
+
+logger.info("App started");
+logger.debug("Debug details");
+logger.warn("Something looks off");
+logger.error("Something failed");
+```
+
+# 🛠️ Development Setup & Workflow (Monorepo)
+
+This repository is a **pnpm-based monorepo** containing:
+
+* `@majee/logger-core` – low-level logging primitives
+* `@majee/logger` – public logger API
+* `@majee/logger-dev-app` – local dev/test app
+
+This guide explains how to set up the workspace, run in watch mode, test, and prepare for releases.
 
 ---
 
-# Commands (copy & paste)
+## ✅ 1. Install pnpm (one-time)
 
-## 0. Open a terminal in repo root
-
-(Works in Git Bash / macOS / Linux / PowerShell)
-
----
-
-## 1. Install pnpm (only if you don’t have it)
+If you don’t already have `pnpm`:
 
 ```bash
 npm install -g pnpm
-pnpm -v   # confirm it prints a version
+pnpm -v
 ```
 
 ---
 
-## 2. Bootstrap workspace (install deps & link local packages)
+## ✅ 2. Install workspace dependencies & link local packages
+
+From the **repo root**:
 
 ```bash
 pnpm -w install
 ```
 
-If a local package is still fetched from npm, ensure `pnpm-workspace.yaml` contains `packages: - "packages/*"` and your consumer uses `"workspace:*"` for the local dependency. Then run:
+If anything looks incorrectly resolved from npm instead of workspace:
 
 ```bash
 pnpm -w install --force
 ```
 
+Make sure `pnpm-workspace.yaml` contains:
+
+```yaml
+packages:
+  - "packages/*"
+```
+
 ---
 
-## 3. One-time build (verifies TypeScript project refs + turbo)
+## ✅ 3. One-time full build (verifies TS project references)
 
 ```bash
 pnpm -w build
 ```
 
-If turbo complains about `pipeline` → run:
+### If Turbo errors with `pipeline` instead of `tasks` (Turbo v2+):
 
 ```bash
-# replace pipeline with tasks (only needed once)
-node -e "const fs=require('fs');let p=JSON.parse(fs.readFileSync('turbo.json')); if(p.pipeline){ p.tasks=p.pipeline; delete p.pipeline; fs.writeFileSync('turbo.json',JSON.stringify(p,null,2)); console.log('patched turbo.json'); } else console.log('no change');"
+node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('turbo.json'));if(p.pipeline){p.tasks=p.pipeline;delete p.pipeline;fs.writeFileSync('turbo.json',JSON.stringify(p,null,2));console.log('patched turbo.json')}else{console.log('no change')}"
 pnpm -w build
 ```
 
 ---
 
-## 4. Watch mode for iterative development (open 2 terminals)
+## ✅ 4. Watch mode for iterative development
 
-Terminal A — watch core package:
+Open **two terminals**:
+
+### Terminal A — Watch logger-core
 
 ```bash
 pnpm --filter @majee/logger-core run watch
-# (ensure packages/logger-core/package.json has "watch": "tsc -b -w")
 ```
 
-Terminal B — watch logger package:
+Ensure `packages/logger-core/package.json` contains:
+
+```json
+"scripts": {
+  "watch": "tsc -b -w"
+}
+```
+
+---
+
+### Terminal B — Watch logger
 
 ```bash
 pnpm --filter @majee/logger run watch
-# (ensure packages/logger/package.json has "watch": "tsc -b -w")
 ```
 
-When you edit source files, dist will update automatically.
+Ensure `packages/logger/package.json` contains:
+
+```json
+"scripts": {
+  "watch": "tsc -b -w"
+}
+```
+
+Now any change in `src/` will automatically rebuild `dist/`.
 
 ---
 
-## 5. Run example and auto-restart on rebuild
+## ✅ 5. Run the dev app (auto-restart on changes)
 
-Option A — manual restart:
+### Option A — Run compiled JS manually
 
 ```bash
-# after initial build
-node packages/logger/dist/examples/basic.js
-# restart when needed
+node packages/logger-dev-app/dist/index.js
 ```
 
-Option B — automatic restart with nodemon (preferred):
+Restart manually after rebuilds.
+
+---
+
+### ✅ Option B — Auto-restart with nodemon (recommended)
+
+Install once:
 
 ```bash
 pnpm -w add -D nodemon
-npx nodemon --watch packages/logger/dist --exec "node packages/logger/dist/examples/basic.js"
 ```
 
-Option C — run TS directly with ts-node-dev:
+Run:
 
 ```bash
-pnpm -w add -D ts-node-dev
-pnpm --filter @majee/logger run dev:ts   # requires script like: ts-node-dev --respawn --transpile-only examples/basic.ts
+npx nodemon --watch packages --ext js --exec "node packages/logger-dev-app/dist/index.js"
 ```
 
 ---
 
-## 6. Add & run unit tests (Vitest example)
+### ✅ Option C — Run TypeScript directly with ts-node-dev
 
-Install dev deps at root:
+Install once:
+
+```bash
+pnpm -w add -D ts-node-dev
+```
+
+Add this to `packages/logger-dev-app/package.json`:
+
+```json
+"scripts": {
+  "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+}
+```
+
+Run:
+
+```bash
+pnpm --filter @majee/logger-dev-app run dev
+```
+
+---
+
+## ✅ 6. Testing Setup (Vitest)
+
+### Install at workspace root:
 
 ```bash
 pnpm -w add -D vitest @types/node
 ```
 
-Add `test` script in each package `package.json`:
+### Add this to each package `package.json`:
 
 ```json
 "scripts": {
@@ -150,57 +226,134 @@ Add `test` script in each package `package.json`:
 }
 ```
 
-Run tests:
+### Run tests:
 
 ```bash
 pnpm --filter @majee/logger test   # single package
-pnpm -w test                       # all workspace packages
+pnpm -w test                       # all packages
 ```
 
 ---
 
-## 7. Useful workspace debug commands
+## ✅ 7. Git, Commits & Linting (Conventional Commits)
+
+### Install tooling:
 
 ```bash
-pnpm -w ls                  # list workspace packages
-pnpm -w -s why @majee/logger-core   # shows why/how dependency is resolved
-pnpm -w install --force     # relink & reinstall if things look off
+pnpm add -D commitizen cz-conventional-changelog
+pnpm add -D czg
+pnpm add -D @commitlint/config-conventional @commitlint/cli husky
 ```
 
----
-
-## 8. If you need to add missing scripts into package.json quickly (one-liners)
-
-Add watch script to core:
+### Initialize Husky:
 
 ```bash
-node -e "const f='packages/logger-core/package.json',p=require(f?fs.readFileSync(f):f);p=JSON.parse(fs.readFileSync(f));p.scripts=p.scripts||{};p.scripts.watch='tsc -b -w';require('fs').writeFileSync(f,JSON.stringify(p,null,2));console.log('core watch added')"
+pnpm dlx husky-init && pnpm install
 ```
 
-(If that one-liner errors, I can print exact JSON to paste — I kept it short here.)
+### Add commit-msg hook:
+
+```bash
+npx husky add .husky/commit-msg "pnpm commitlint --edit $1"
+```
+
+### Initialize Commitizen:
+
+```bash
+pnpm dlx commitizen init cz-conventional-changelog --save-dev --save-exact
+```
+
+### Now commit using:
+
+```bash
+pnpm cz
+```
 
 ---
 
-# Typical dev loop (recommended)
+## ✅ 8. MongoDB support for logger-core
 
-1. `pnpm -w install`
-2. `pnpm --filter @majee/logger-core run watch` (Terminal A)
-3. `pnpm --filter @majee/logger run watch` (Terminal B)
-4. `pnpm --filter @majee/logger-dev-app` run dev
-` (Terminal C)
-5. Edit TS source in `packages/logger-core/src` or `packages/logger/src` — watcher rebuilds, nodemon restarts example.
-or 
-pnpm dev
-# start coding immediately
+```bash
+pnpm --filter @majee/logger-core add mongodb
+```
 
 ---
 
-# Final tips
+## ✅ 9. Changesets (Versioning & Releases)
 
-* Use `workspace:*` for local deps in `packages/logger/package.json` so pnpm links locally.
-* Keep `logger-core` small and stable (interfaces + tiny utils).
-* Write an integration test that runs `Logger` with a test transport (captures logs in-memory) — this prevents regressions when you later add V2.
-* If builds are slow, use `pnpm -w build --filter ...` to build a single package.
+### Install:
+
+```bash
+pnpm add -Dw @changesets/cli
+```
+
+### Initialize:
+
+```bash
+pnpm changeset init
+```
+
+### Root `package.json` scripts:
+
+```json
+"scripts": {
+  "build": "pnpm -r run build",
+  "changeset": "changeset",
+  "version-packages": "changeset version",
+  "publish-packages": "changeset publish"
+}
+```
+
+### Normal release flow:
+
+```bash
+pnpm changeset
+pnpm version-packages
+pnpm build
+pnpm publish-packages
+```
 
 ---
+
+## ✅ 10. Workspace Debugging Commands
+
+```bash
+pnpm -w ls                          # list all workspace packages
+pnpm -w why @majee/logger-core      # why a package is installed
+pnpm -w install --force             # full relink if resolution breaks
+```
+
+---
+
+## ✅ 11. Typical Daily Dev Loop (Recommended)
+
+```bash
+pnpm -w install
+
+# Terminal A
+pnpm --filter @majee/logger-core run watch
+
+# Terminal B
+pnpm --filter @majee/logger run watch
+
+# Terminal C
+pnpm --filter @majee/logger-dev-app run dev
+```
+
+Now:
+
+* Edit code in `logger-core` or `logger`
+* TypeScript rebuilds automatically
+* Dev app restarts automatically
+* You see real output immediately
+
+---
+
+## ✅ Final Best Practices
+
+* Use `"workspace:*"` for local deps during development.
+* Publish `@majee/logger-core` **before** `@majee/logger`.
+* Keep core minimal and stable.
+* Add at least one **in-memory test transport** for integration testing.
+* Use Changesets for every meaningful change.
 
