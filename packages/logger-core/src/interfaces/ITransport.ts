@@ -1,3 +1,3 @@
 export interface ITransport {
-  log(entry: any): void | Promise<void>;
+  log(payload: string): void | Promise<void>;
 }

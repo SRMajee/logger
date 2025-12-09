@@ -9,5 +9,8 @@
     "watch": "tsc -p tsconfig.json -w",
     "test": "echo \"no tests\"",
     "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "mongodb": "^7.0.0"
   }
 }

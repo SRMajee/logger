@@ -1,3 +1,5 @@
+import type { ILogEntry } from "../interfaces/ILogEntry";
+
 export interface IFormatter {
-  format(entry: any): any;
+  format(entry: ILogEntry): string;
 }

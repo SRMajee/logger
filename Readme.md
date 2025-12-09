@@ -18,6 +18,7 @@ pnpm dlx husky-init && pnpm install
 npx husky add .husky/commit-msg 'pnpm commitlint --edit $1'
 pnpm dlx commitizen init cz-conventional-changelog --save-dev --save-exact
 pnpm -w add -D concurrently
+pnpm --filter @majee/logger-core add mongodb
 
 Nice — here's a compact, copy-pasteable **dev checklist + exact commands** so you can iterate on `@majee/logger-core` and `@majee/logger` quickly. Follow in order.
 
