@@ -1,26 +1,29 @@
-name: Monorepo Publish
+name: Release
 
 on:
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  publish:
+  release:
+    name: Release
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
-      id-token: write # Needed for provenance if you use it, otherwise optional
+      contents: write # Needed to push tags and commits
+      pull-requests: write # Needed to create the Version PR
+      id-token: write
 
     steps:
-      - name: ⬇️ Checkout repository
+      - name: ⬇️ Checkout Repo
         uses: actions/checkout@v4
 
       - name: ⚙️ Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          version: 10.24.0
           run_install: false
 
       - name: 🟢 Setup Node.js
@@ -28,20 +31,26 @@ jobs:
         with:
           node-version: 22.13.1
           cache: pnpm
-          # ⚠️ Crucial: This tells GitHub to create an .npmrc with your token
-          registry-url: 'https://registry.npmjs.org'
 
-      - name: 📦 Install dependencies
+      - name: 📦 Install Dependencies
         run: pnpm -w install --frozen-lockfile
 
-      - name: 🔨 Build all packages
-        # '-r' runs the build script in every package in the workspace
-        run: pnpm -r build
+      - name: 🔨 Build
+        run: pnpm -w build
 
-      - name: 📤 Publish Recursive
-        # -r: Recursive (all packages in workspace)
-        # --no-bail: If a package version already exists in npm, skip it and continue (don't fail the job)
-        # --access public: Standard for open source
-        run: pnpm -r publish --access public --no-bail
+      - name: 🚀 Create Release PR or Publish
+        uses: changesets/action@v1
+        with:
+        # 👇 matches your "version-packages" script
+            version: pnpm version-packages 
+        
+        # 👇 matches your "publish-packages" script
+            publish: pnpm publish-packages 
+            
+            commit: "chore: version packages"
+            title: "Version Packages"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Needs your GitHub Token (built-in) to create PRs
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Needs your NPM Token to publish
+            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
