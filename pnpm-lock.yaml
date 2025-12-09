@@ -54,8 +54,8 @@ importers:
   packages/logger:
     dependencies:
       '@majee/logger-core':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: workspace:*
+        version: link:../logger-core
 
   packages/logger-core:
     dependencies:
@@ -392,9 +392,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
-
-  '@majee/logger-core@0.2.0':
-    resolution: {integrity: sha512-h/OORK5kPg15D5bdzxGB6VHwJY6y5JhTO4aR956JLtaSai194EguGXS1Vk9aPDTDOXDjw0HeOEkoyQWgTlldgg==}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -2292,18 +2289,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
-
-  '@majee/logger-core@0.2.0':
-    dependencies:
-      mongodb: 7.0.0
-    transitivePeerDependencies:
-      - '@aws-sdk/credential-providers'
-      - '@mongodb-js/zstd'
-      - gcp-metadata
-      - kerberos
-      - mongodb-client-encryption
-      - snappy
-      - socks
 
   '@manypkg/find-root@1.1.0':
     dependencies:
