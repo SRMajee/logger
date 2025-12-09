@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "echo \"[skip] dev-app build (not needed for CI/husky)\"",
+    "build:local": "tsc -p tsconfig.json",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "echo \"no tests\""
   },
