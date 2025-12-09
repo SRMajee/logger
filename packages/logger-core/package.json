@@ -1,9 +1,13 @@
 {
   "name": "@majee/logger-core",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.2.0",
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "watch": "tsc -p tsconfig.json -w",
@@ -12,5 +16,6 @@
   },
   "dependencies": {
     "mongodb": "^7.0.0"
-  }
+  },
+  "license": "MIT"
 }

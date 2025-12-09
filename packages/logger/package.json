@@ -1,16 +1,21 @@
 {
   "name": "@majee/logger",
-  "version": "1.0.0",
-  "private": true,
+  "version": "0.2.0",
+  "private": false,
   "main": "dist/entrypoints/index.js",
   "types": "dist/entrypoints/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "dependencies": {
-    "@majee/logger-core": "workspace:*"
+    "@majee/logger-core": "^0.2.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "watch": "tsc -p tsconfig.json -w",
     "test": "echo \"no tests\"",
     "clean": "rm -rf dist"
-  }
+  },
+  "license": "MIT"
 }

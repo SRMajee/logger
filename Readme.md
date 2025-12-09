@@ -1,12 +1,15 @@
-# install workspace deps and link local packages
+# Install workspace deps and link local packages
+```bash
 pnpm -w install
-
-# build everything (uses TypeScript project refs)
+```
+# Build everything (uses TypeScript project refs)
+```bash
 pnpm -w build
-
-# run tests (placeholders until you add real tests)
+```
+# Run tests 
+```bash
 pnpm -w test
-
+```
 
 
 pnpm -w add -D vitest @types/node
@@ -19,6 +22,8 @@ npx husky add .husky/commit-msg 'pnpm commitlint --edit $1'
 pnpm dlx commitizen init cz-conventional-changelog --save-dev --save-exact
 pnpm -w add -D concurrently
 pnpm --filter @majee/logger-core add mongodb
+pnpm add -Dw @changesets/cli
+pnpm changeset init
 
 Nice — here's a compact, copy-pasteable **dev checklist + exact commands** so you can iterate on `@majee/logger-core` and `@majee/logger` quickly. Follow in order.
 

@@ -10,9 +10,13 @@
     "clean": "turbo run clean",
     "commit": "czg",
     "prepare": "husky install",
-    "dev": "concurrently -n CORE,LOGGER,APP -c blue,green,magenta \"pnpm --filter @majee/logger-core run watch\" \"pnpm --filter @majee/logger run watch\" \"pnpm --filter @majee/logger-dev-app run dev\""
+    "dev": "concurrently -n CORE,LOGGER,APP -c blue,green,magenta \"pnpm --filter @majee/logger-core run watch\" \"pnpm --filter @majee/logger run watch\" \"pnpm --filter @majee/logger-dev-app run dev\"",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "publish-packages": "changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@types/node": "^24.10.1",
