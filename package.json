@@ -1,7 +1,7 @@
 {
   "name": "logger-monorepo",
   "private": true,
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "bootstrap": "pnpm -w install",
     "build": "turbo run build",
