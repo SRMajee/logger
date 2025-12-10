@@ -48,6 +48,7 @@ jobs:
           publish: pnpm publish-packages
           commit: "chore: version packages"
           title: "Version Packages"
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
