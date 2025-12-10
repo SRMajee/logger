@@ -1,5 +1,11 @@
 # @majee/logger-core
 
+## 0.6.0
+
+### Minor Changes
+
+- 4b833b3: Added Unit Tests and Integration Tests
+
 ## 0.5.0
 
 ### Minor Changes
