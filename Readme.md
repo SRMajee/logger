@@ -4,6 +4,9 @@
 [![npm downloads](https://img.shields.io/npm/dm/@majee/logger.svg)](https://www.npmjs.com/package/@majee/logger)
 [![License](https://img.shields.io/npm/l/@majee/logger.svg)](LICENSE)
 [![CI](https://github.com/SRMajee/logger/actions/workflows/ci.yml/badge.svg)](https://github.com/SRMajee/logger/actions)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-4.9+-blue)](#)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-blue)](#)
 
 
 A modern, **modular, TypeScript-first logging system for Node.js**, designed for **scalability, extensibility, and production-grade observability**.
@@ -17,11 +20,11 @@ A modern, **modular, TypeScript-first logging system for Node.js**, designed for
 
 This architecture allows:
 
-  - ✅ Simple usage for application developers  
-  - ✅ Deep extensibility for infrastructure and framework integrations  
-  - ✅ Safe evolution toward distributed tracing, metrics, and log routing  
+  - ✅ Simple usage for application developers
+  - ✅ Deep extensibility for infrastructure and framework integrations
+  - ✅ Safe evolution toward distributed tracing, metrics, and log routing
 
-> Consumers only import from `@majee/logger`.  
+> Consumers only import from `@majee/logger`.
 > `@majee/logger-core` is published separately for advanced use cases and shared infrastructure.
 
 -----
@@ -30,27 +33,27 @@ This architecture allows:
 
 ```ts
 import {
-  Logger,
-  ConsoleTransport,
-  FileTransport,
-  JsonFormatter,
-  PrettyFormatter
+  Logger,
+  ConsoleTransport,
+  FileTransport,
+  JsonFormatter,
+  PrettyFormatter
 } from "@majee/logger";
 
 const logger = new Logger({
-  level: "debug",
-  formatter: new JsonFormatter(), // default formatter
-  transports: [
-    {
-      transport: new ConsoleTransport(),
-      formatter: new PrettyFormatter(), // pretty console output
-      minLevel: "info"
-    },
-    {
-      transport: new FileTransport("logs/app.log"),
-      minLevel: "debug" // file gets everything
-    }
-  ]
+  level: "debug",
+  formatter: new JsonFormatter(), // default formatter
+  transports: [
+    {
+      transport: new ConsoleTransport(),
+      formatter: new PrettyFormatter(), // pretty console output
+      minLevel: "info"
+    },
+    {
+      transport: new FileTransport("logs/app.log"),
+      minLevel: "debug" // file gets everything
+    }
+  ]
 });
 
 logger.info("App started");
@@ -168,9 +171,11 @@ npx nodemon --watch packages --ext js --exec "node packages/logger-dev-app/dist/
 ## ✅ 7. Testing Setup (Vitest)
 
 Tests run using **Vitest**. The test suite will attempt to connect to the MongoDB instance if available.
+
 ```bash
 pnpm add -w -D vitest
 ```
+
 ### Run tests:
 
 ```bash
@@ -237,7 +242,6 @@ When you make code changes, follow this flow:
 
 ## ✅ 10. Typical Daily Dev Loop (Recommended)
 
-
 ```bash
 # 1. Start DB
 docker compose up -d
@@ -267,9 +271,37 @@ Now:
 
 -----
 
+## 🤝 Contributing
+
+We welcome contributions\! Here is the workflow for external contributors:
+
+1.  **Fork** the repository and clone it locally.
+2.  **Install dependencies**:
+    ```bash
+    pnpm install
+    ```
+3.  **Create a branch** for your feature or fix:
+    ```bash
+    git checkout -b feat/my-cool-feature
+    ```
+4.  **Make your changes**.
+5.  **Add a Changeset** (Required if you edit source code):
+    ```bash
+    npx changeset
+    ```
+    *Follow the prompts to select the package and version bump (patch/minor).*
+6.  **Push** to your fork and submit a **Pull Request**.
+
+### Requirements
+
+  * All tests must pass (`pnpm test`).
+  * Linting must pass (`pnpm build`).
+  * Include a changeset so our release bot can publish your code\!
+
+-----
+
 ## ✅ Final Best Practices
 
   * Use `"workspace:*"` for local deps during development.
   * Always add a changeset (`npx changeset`) if your code change affects the library user.
   * Do not edit `package.json` versions manually; let the CI handle it.
-
