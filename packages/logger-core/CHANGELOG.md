@@ -1,5 +1,11 @@
 # @majee/logger-core
 
+## 0.4.0
+
+### Patch Changes
+
+- af1e0a6: fezt : CI/CD pipeline
+
 ## 0.3.0
 
 ### Minor Changes
