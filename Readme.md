@@ -87,13 +87,13 @@ pnpm -v
 From the **repo root**:
 
 ```bash
-pnpm -w install
+pnpm install
 ```
 
 If anything looks incorrectly resolved from npm instead of workspace:
 
 ```bash
-pnpm -w install --force
+pnpm install --force
 ```
 
 -----
@@ -243,7 +243,7 @@ When you make code changes, follow this flow:
 docker compose up -d
 
 # 2. Install deps
-pnpm -w install
+pnpm install
 
 # 3. 
 pnpm dev
