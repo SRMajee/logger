@@ -1,12 +1,13 @@
 # @majee/logger
 
-[](https://www.npmjs.com/package/@majee/logger)
-[](https://www.npmjs.com/package/@majee/logger)
-[](https://www.google.com/search?q=LICENSE)
-[](https://github.com/SRMajee/logger/actions)
-[](https://www.google.com/search?q=%23)
-[](https://www.google.com/search?q=%23)
-[](https://www.google.com/search?q=%23)
+[![npm version](https://img.shields.io/npm/v/@majee/logger.svg)](https://www.npmjs.com/package/@majee/logger)
+[![npm downloads](https://img.shields.io/npm/dm/@majee/logger.svg)](https://www.npmjs.com/package/@majee/logger)
+[![License](https://img.shields.io/npm/l/@majee/logger.svg)](LICENSE)
+[![CI](https://github.com/SRMajee/logger/actions/workflows/ci.yml/badge.svg)](https://github.com/SRMajee/logger/actions)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-4.9+-blue)](#)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-blue)](#)
+
 
 A modern, **modular, TypeScript-first logging system for Node.js**, designed for **scalability, extensibility, and production-grade observability**.
 
