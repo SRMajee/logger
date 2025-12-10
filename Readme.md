@@ -168,7 +168,9 @@ npx nodemon --watch packages --ext js --exec "node packages/logger-dev-app/dist/
 ## ✅ 7. Testing Setup (Vitest)
 
 Tests run using **Vitest**. The test suite will attempt to connect to the MongoDB instance if available.
-
+```bash
+pnpm add -w -D vitest
+```
 ### Run tests:
 
 ```bash
@@ -235,6 +237,7 @@ When you make code changes, follow this flow:
 
 ## ✅ 10. Typical Daily Dev Loop (Recommended)
 
+
 ```bash
 # 1. Start DB
 docker compose up -d
@@ -242,11 +245,16 @@ docker compose up -d
 # 2. Install deps
 pnpm -w install
 
-# 3. Start Watchers (in separate terminals)
+# 3. 
+pnpm dev
+
+# OR
+
+# 4. Start Watchers (in separate terminals)
 pnpm --filter @majee/logger-core run watch
 pnpm --filter @majee/logger run watch
 
-# 4. Run Dev App
+# 5. Run Dev App
 pnpm --filter @majee/logger-dev-app run dev
 ```
 

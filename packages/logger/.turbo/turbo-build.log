@@ -1,4 +1,4 @@
 
-> @majee/logger@0.3.0 build C:\Projects\Logger\packages\logger
+> @majee/logger@0.4.0 build C:\Projects\Logger\packages\logger
 > tsc -p tsconfig.json
 

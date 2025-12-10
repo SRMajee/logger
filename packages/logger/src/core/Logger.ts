@@ -83,7 +83,6 @@ export class Logger {
   warn(msg: string): void { this.emit("warn", msg); }
   error(msg: string): void { this.emit("error", msg); }
 
-  // Context helpers delegating to the context manager
 
   /**
    * Run a function within a specific context. All logs inside
