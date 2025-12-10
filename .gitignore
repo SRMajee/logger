@@ -1,9 +1,12 @@
-node_modules
-dist
-.pnpm-store
-.env
-.idea
-.vscode
-coverage
+# Turbo cache
 .turbo
-.husky
+
+# Node dependencies
+node_modules
+
+# Build outputs 
+dist
+build
+
+# Environment variables
+.env
