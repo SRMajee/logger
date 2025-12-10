@@ -1,5 +1,16 @@
 # @majee/logger
 
+## 0.5.0
+
+### Minor Changes
+
+- 169e99b: Enabled Releases on Github
+
+### Patch Changes
+
+- Updated dependencies [169e99b]
+  - @majee/logger-core@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes
