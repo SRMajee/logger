@@ -1,5 +1,15 @@
 # @majee/logger
 
+## 0.7.0
+
+### Minor Changes
+
+- Checking manual publish
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @majee/logger-core@0.7.0
 
 ## 0.6.0
 

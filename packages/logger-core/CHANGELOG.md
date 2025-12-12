@@ -1,5 +1,10 @@
 # @majee/logger-core
 
+## 0.7.0
+
+### Minor Changes
+
+- Checking manual publish
 
 ## 0.6.0
 
