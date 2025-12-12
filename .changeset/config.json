@@ -1,15 +1,11 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
-  "changelog": "@changesets/changelog-git",
+  "$schema": "https://unpkg.com/@changesets/config/schema.json",
+  "changelog": ["@changesets/changelog-github", { "repo": "majee/logger" }],
   "commit": false,
   "fixed": [],
-  "linked": [
-    ["@majee/logger-core", "@majee/logger"]
-  ],
+  "linked": [["@majee/logger-core", "@majee/logger"]],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "@majee/logger-dev-app"
-  ]
+  "ignore": ["@majee/logger-dev-app"]
 }
