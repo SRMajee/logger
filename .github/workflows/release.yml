@@ -29,6 +29,22 @@ jobs:
 
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm -w build
+      - name: Prevent publishing from release branch
+        run: |
+          branch=$(git rev-parse --abbrev-ref HEAD || echo "")
+          echo "Current branch: $branch"
+          # if we are on a changeset release branch, stop the job to avoid publishing the wrong commit
+          if echo "$branch" | grep -q "^changeset-release"; then
+            echo "We are on a changeset-release branch — stopping to avoid premature publish"
+            exit 0
+          fi
+
+          # If any changeset files exist (meaning versioning is in-progress), stop to avoid publishing
+          if [ -d ".changeset" ] && [ "$(ls -A .changeset 2>/dev/null)" ]; then
+            echo ".changeset contains files — stopping to avoid premature publish"
+            exit 0
+          fi
+        shell: bash
 
       - uses: changesets/action@v1
         with:
