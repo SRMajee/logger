@@ -1,5 +1,10 @@
 # @majee/logger-core
 
+## 0.7.0
+
+### Minor Changes
+
+- 5451ae2: CI/CD check
 
 ## 0.6.0
 
