@@ -1,5 +1,15 @@
 # @majee/logger
 
+## 0.7.0
+
+### Minor Changes
+
+- [`5f360e2`](https://github.com/SRMajee/logger/commit/5f360e2a80a9f4b75601716e231ae5fc0f793aea) - CI/CD check
+
+### Patch Changes
+
+- Updated dependencies [[`5f360e2`](https://github.com/SRMajee/logger/commit/5f360e2a80a9f4b75601716e231ae5fc0f793aea)]:
+  - @majee/logger-core@0.7.0
 
 ### Patch Changes
 
