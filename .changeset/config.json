@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "majee/logger" }],
+  "changelog": ["@changesets/changelog-github", { "repo": "SRmajee/logger" }],
   "commit": false,
   "fixed": [],
   "linked": [["@majee/logger-core", "@majee/logger"]],
