@@ -1,22 +1,5 @@
 # @majee/logger-core
 
-## 0.7.0
-
-### Minor Changes
-
-- 88e3020: CI/CD check
-
-## 0.8.0
-
-### Minor Changes
-
-- 2d53a09: CI/CD problem
-
-## 0.7.0
-
-### Minor Changes
-
-- b79d663: Added v1 UML
 
 ## 0.6.0
 

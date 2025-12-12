@@ -1,33 +1,5 @@
 # @majee/logger
 
-## 0.7.0
-
-### Minor Changes
-
-- 88e3020: CI/CD check
-
-### Patch Changes
-
-- Updated dependencies [88e3020]
-  - @majee/logger-core@0.7.0
-
-## 0.8.0
-
-### Minor Changes
-
-- 2d53a09: CI/CD problem
-
-### Patch Changes
-
-- Updated dependencies [2d53a09]
-  - @majee/logger-core@0.8.0
-
-## 0.7.0
-
-### Patch Changes
-
-- Updated dependencies [b79d663]
-  - @majee/logger-core@0.7.0
 
 ## 0.6.0
 
