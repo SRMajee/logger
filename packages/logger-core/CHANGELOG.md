@@ -1,5 +1,11 @@
 # @majee/logger-core
 
+## 0.7.0
+
+### Minor Changes
+
+- b79d663: Added v1 UML
+
 ## 0.6.0
 
 ### Minor Changes
