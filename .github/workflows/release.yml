@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 jobs:
-  release:
+  version-or-publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,9 +31,8 @@ jobs:
 
       - run: pnpm -w build
 
-      # 🛑 BLOCK ONLY THE PUBLISH STEP, NOT VERSIONING
-      # If changesets exist → version PR must be created → DO NOT PUBLISH
-      - name: Determine if this is a publish run
+      # 👉 Detect whether changesets exist
+      - name: Check for pending changesets
         id: check
         run: |
           COUNT=$(ls .changeset/*.md 2>/dev/null | wc -l || true)
@@ -43,19 +42,28 @@ jobs:
             echo "mode=publish" >> $GITHUB_OUTPUT
           fi
 
-      # 🟢 Let Changesets ACTION run normally
-      - name: Run Changesets
+      # 👉 Run VERSION ONLY (publish disabled)
+      - name: Run Changesets (Version only)
+        if: steps.check.outputs.mode == 'version'
         uses: changesets/action@v1
         with:
-          version: pnpm version-packages     # Version PR creation phase
-          publish: |
-            if [ "${{ steps.check.outputs.mode }}" = "publish" ]; then
-              pnpm publish-packages
-            else
-              echo "Skipping publish; pending changesets exist"
-            fi
+          version: pnpm version-packages
+          publish: false
           commit: "chore: version packages"
           title: "Version Packages"
+          createGithubReleases: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 👉 Run PUBLISH ONLY (no versioning)
+      - name: Run Changesets (Publish only)
+        if: steps.check.outputs.mode == 'publish'
+        uses: changesets/action@v1
+        with:
+          version: false
+          publish: pnpm publish-packages
+          commit: false
+          title: ""
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
