@@ -38,14 +38,25 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Configure npm auth for CI
+        id: auth
         run: |
           if [ -z "${NPM_TOKEN}" ]; then
             echo "ERROR: NPM_TOKEN secret is missing" >&2
             exit 1
           fi
-          # place token into user and project npmrc so pnpm / npm use it
+          # must write into both user and project npmrc
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          # ensure no trailing CRLF/newline issues
+          sed -n '1,5p' ~/.npmrc
+        shell: bash
+
+      - name: Verify NPM token & scope on runner
+        run: |
+          echo "whoami ->"
+          npm --userconfig ~/.npmrc whoami
+          echo "--- scope list (may be empty) ---"
+          npm --userconfig ~/.npmrc access list packages @majee --json || true
         shell: bash
 
       - name: 📦 Install Dependencies
