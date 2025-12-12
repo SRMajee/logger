@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    # Prevent early version bump on changeset creation
-    paths-ignore:
-      - ".changeset/*.md"
 
 permissions:
   contents: write
@@ -18,44 +15,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
           always-auth: true
 
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+      - run: pnpm install --no-frozen-lockfile
 
-      - name: Build packages
-        run: pnpm -w build
+      - run: pnpm -w build
 
-      # 🚫 Prevent early versioning or publishing if changesets exist.
-      # This is the key fix that stops 0.7.0 from being generated early.
-      - name: Skip workflow if pending changesets exist
+      # 🛑 BLOCK ONLY THE PUBLISH STEP, NOT VERSIONING
+      # If changesets exist → version PR must be created → DO NOT PUBLISH
+      - name: Determine if this is a publish run
+        id: check
         run: |
           COUNT=$(ls .changeset/*.md 2>/dev/null | wc -l || true)
           if [ "$COUNT" -gt 0 ]; then
-            echo "Pending changesets detected → not time to version or publish."
-            echo "A Version Packages PR will be created by changesets/action."
-            exit 0
+            echo "mode=version" >> $GITHUB_OUTPUT
+          else
+            echo "mode=publish" >> $GITHUB_OUTPUT
           fi
 
-      # 🟢 Now safe to run Changesets for actual release
-      - name: Create Release or Publish
+      # 🟢 Let Changesets ACTION run normally
+      - name: Run Changesets
         uses: changesets/action@v1
         with:
-          version: pnpm version-packages     # creates Version PR
-          publish: pnpm publish-packages     # publishes after Version PR merge
+          version: pnpm version-packages     # Version PR creation phase
+          publish: |
+            if [ "${{ steps.check.outputs.mode }}" = "publish" ]; then
+              pnpm publish-packages
+            else
+              echo "Skipping publish; pending changesets exist"
+            fi
           commit: "chore: version packages"
           title: "Version Packages"
           createGithubReleases: true

@@ -1,11 +1,6 @@
 # @majee/logger
 
 
-### Patch Changes
-
-- Updated dependencies [f93f3ab]
-  - @majee/logger-core@0.7.0
-
 ## 0.6.0
 
 ### Minor Changes
