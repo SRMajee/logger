@@ -12,9 +12,9 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write # To push tags/changelogs
-      pull-requests: write # To create the Version PR
-      id-token: write # ⚡ REQUIRED for Trusted Publishing (OIDC)
+      contents: write
+      pull-requests: write
+      id-token: write
 
     steps:
       - name: ⬇️ Checkout Repo
@@ -33,11 +33,8 @@ jobs:
           node-version: 22.13.1
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
-          # We do NOT pass a token here anymore. 
-          # setup-node + id-token permission handles the handshake automatically.
 
       - name: 📦 Install Dependencies
-        # Cleaned up command
         run: pnpm install --no-frozen-lockfile
 
       - name: 🔨 Build
@@ -53,5 +50,4 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 🗑️ REMOVED: NODE_AUTH_TOKEN is gone! 
-          # Trusted Publishing handles auth behind the scenes.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # 👈 Required for first publish
