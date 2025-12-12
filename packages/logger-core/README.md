@@ -216,3 +216,7 @@ For standard application logging, prefer:
 ```ts
 import { Logger } from "@majee/logger";
 ```
+
+## v1 UML
+
+![v1 UML]( C:/Projects/Logger/Design/v1_UML.png)
