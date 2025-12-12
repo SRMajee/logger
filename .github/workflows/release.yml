@@ -36,6 +36,12 @@ jobs:
 
       - name: Build packages
         run: pnpm -w build
+      - name: Skip publish if we are in versioning stage
+        run: |
+          if [ -d ".changeset" ] && [ "$(ls -A .changeset)" ]; then
+            echo "Pending changesets exist — skipping publish"
+            exit 0
+          fi
 
       - name: Publish or Create Version PR
         uses: changesets/action@v1
