@@ -1,5 +1,15 @@
 # @majee/logger
 
+## 0.7.0
+
+### Minor Changes
+
+- 5451ae2: CI/CD check
+
+### Patch Changes
+
+- Updated dependencies [5451ae2]
+  - @majee/logger-core@0.7.0
 
 ### Patch Changes
 
