@@ -12,9 +12,12 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write # To push tags and changelogs
-      pull-requests: write # To create the Version PR
-      id-token: write # ⚡ REQUIRED: This lets npm verify your identity without a token
+      contents: write
+      pull-requests: write
+      id-token: write
+
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
       - name: ⬇️ Checkout Repo
@@ -33,8 +36,17 @@ jobs:
           node-version: 22.13.1
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
-          # ❌ CRITICAL: Do NOT put any 'token' or 'NODE_AUTH_TOKEN' lines here.
-          # The 'id-token: write' permission above handles auth automatically.
+
+      - name: Configure npm auth for CI
+        run: |
+          if [ -z "${NPM_TOKEN}" ]; then
+            echo "ERROR: NPM_TOKEN secret is missing" >&2
+            exit 1
+          fi
+          # place token into user and project npmrc so pnpm / npm use it
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+        shell: bash
 
       - name: 📦 Install Dependencies
         run: pnpm install --no-frozen-lockfile
@@ -52,5 +64,4 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # ❌ CRITICAL: Do NOT include NODE_AUTH_TOKEN here.
-          # Trusted Publishing makes it unnecessary.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
