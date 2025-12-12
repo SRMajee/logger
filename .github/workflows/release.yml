@@ -6,38 +6,45 @@ on:
       - main
 
 permissions:
-  contents: write        # required for creating tags + releases
-  id-token: write        # required for OIDC
+  contents: write         # required for creating tags and GitHub Releases
   pull-requests: write
+  id-token: write         # required for OIDC authentication with npm
 
 jobs:
   release:
+    name: Publish Packages
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: "https://registry.npmjs.org"   # required for OIDC publish
+          registry-url: "https://registry.npmjs.org"
           always-auth: true
 
-      - name: Install
+      - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build
+      - name: Build Packages
         run: pnpm -w build
 
-      - name: Publish (Changesets)
+      - name: Create Release or Publish
         uses: changesets/action@v1
         with:
           version: pnpm version-packages
           publish: pnpm publish-packages
+          commit: "chore: version packages"
+          title: "Version Packages"
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

@@ -271,34 +271,8 @@ Now:
 
 -----
 
-## 🤝 Contributing
 
-We welcome contributions\! Here is the workflow for external contributors:
 
-1.  **Fork** the repository and clone it locally.
-2.  **Install dependencies**:
-    ```bash
-    pnpm install
-    ```
-3.  **Create a branch** for your feature or fix:
-    ```bash
-    git checkout -b feat/my-cool-feature
-    ```
-4.  **Make your changes**.
-5.  **Add a Changeset** (Required if you edit source code):
-    ```bash
-    npx changeset
-    ```
-    *Follow the prompts to select the package and version bump (patch/minor).*
-6.  **Push** to your fork and submit a **Pull Request**.
-
-### Requirements
-
-  * All tests must pass (`pnpm test`).
-  * Linting must pass (`pnpm build`).
-  * Include a changeset so our release bot can publish your code\!
-
------
 
 ## ✅ Final Best Practices
 
