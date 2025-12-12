@@ -1,5 +1,11 @@
 # @majee/logger-core
 
+## 0.8.0
+
+### Minor Changes
+
+- 2d53a09: CI/CD problem
+
 ## 0.7.0
 
 ### Minor Changes
