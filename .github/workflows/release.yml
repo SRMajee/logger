@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    # Prevent early version bump on changeset creation
+    paths-ignore:
+      - ".changeset/*.md"
 
 permissions:
   contents: write
@@ -15,41 +18,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
           always-auth: true
 
-      - run: pnpm install --no-frozen-lockfile
-      - run: pnpm -w build
-      - name: Prevent publishing from release branch
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build packages
+        run: pnpm -w build
+
+      # 🚫 Prevent early versioning or publishing if changesets exist.
+      # This is the key fix that stops 0.7.0 from being generated early.
+      - name: Skip workflow if pending changesets exist
         run: |
-          branch=$(git rev-parse --abbrev-ref HEAD || echo "")
-          echo "Current branch: $branch"
-          # if we are on a changeset release branch, stop the job to avoid publishing the wrong commit
-          if echo "$branch" | grep -q "^changeset-release"; then
-            echo "We are on a changeset-release branch — stopping to avoid premature publish"
+          COUNT=$(ls .changeset/*.md 2>/dev/null | wc -l || true)
+          if [ "$COUNT" -gt 0 ]; then
+            echo "Pending changesets detected → not time to version or publish."
+            echo "A Version Packages PR will be created by changesets/action."
             exit 0
           fi
 
-          # If any changeset files exist (meaning versioning is in-progress), stop to avoid publishing
-          if [ -d ".changeset" ] && [ "$(ls -A .changeset 2>/dev/null)" ]; then
-            echo ".changeset contains files — stopping to avoid premature publish"
-            exit 0
-          fi
-        shell: bash
-
-      - uses: changesets/action@v1
+      # 🟢 Now safe to run Changesets for actual release
+      - name: Create Release or Publish
+        uses: changesets/action@v1
         with:
-          version: pnpm version-packages
-          publish: pnpm publish-packages
+          version: pnpm version-packages     # creates Version PR
+          publish: pnpm publish-packages     # publishes after Version PR merge
           commit: "chore: version packages"
           title: "Version Packages"
           createGithubReleases: true
