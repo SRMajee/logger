@@ -12,9 +12,9 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
-      id-token: write
+      contents: write # To push tags and changelogs
+      pull-requests: write # To create the Version PR
+      id-token: write # ⚡ REQUIRED: This lets npm verify your identity without a token
 
     steps:
       - name: ⬇️ Checkout Repo
@@ -33,6 +33,8 @@ jobs:
           node-version: 22.13.1
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
+          # ❌ CRITICAL: Do NOT put any 'token' or 'NODE_AUTH_TOKEN' lines here.
+          # The 'id-token: write' permission above handles auth automatically.
 
       - name: 📦 Install Dependencies
         run: pnpm install --no-frozen-lockfile
@@ -50,4 +52,5 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # 👈 Required for first publish
+          # ❌ CRITICAL: Do NOT include NODE_AUTH_TOKEN here.
+          # Trusted Publishing makes it unnecessary.
