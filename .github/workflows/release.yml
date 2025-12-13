@@ -6,16 +6,16 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: write          # needed for version PR & tagging
   pull-requests: write
-  id-token: write
+  id-token: write          # REQUIRED for OIDC token to npm
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -23,25 +23,25 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
-          always-auth: true
+          always-auth: true   # REQUIRED for npm OIDC
 
-      - name: Install deps
+      - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build
+      - name: Build packages
         run: pnpm -w build
 
-      # STEP 1 — Detect release phase (version OR publish)
-      - name: Detect pending changesets
+      # ----- Detect release phase -----------------------------------
+      - name: Detect changesets
         id: mode
         run: |
-          COUNT=$(ls .changeset/*.md 2>/dev/null | grep -v "README" | wc -l || true)
-          if [ "$COUNT" -gt 0 ]; then
+          REAL_COUNT=$(ls .changeset/*.md 2>/dev/null | grep -v "README" | wc -l || true)
+          if [ "$REAL_COUNT" -gt 0 ]; then
             echo "mode=version" >> $GITHUB_OUTPUT
             echo "Pending changesets → running VERSION PHASE."
           else
@@ -49,11 +49,8 @@ jobs:
             echo "No changesets → running PUBLISH PHASE."
           fi
 
-      # STEP 2 — VERSION PHASE
-      # Same as running manually:
-      #  pnpm version-packages
-      # (Changesets creates a PR and stops)
-      - name: Run Changesets (Version only)
+      # ----- VERSION PHASE: create version PR ----------------------
+      - name: Changesets – Version only
         if: steps.mode.outputs.mode == 'version'
         uses: changesets/action@v1
         with:
@@ -65,15 +62,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # STEP 3 — PUBLISH PHASE
-      # Same as running manually:
-      #  pnpm publish-packages
-      - name: Run Changesets (Publish only)
+      # ----- PUBLISH PHASE: build again & publish with OIDC --------
+      - name: Changesets – Publish only
         if: steps.mode.outputs.mode == 'publish'
         uses: changesets/action@v1
         with:
           version: false
-          publish:  pnpm cs-publish
+          publish: pnpm cs-publish
           commit: false
           createGithubReleases: true
         env:
