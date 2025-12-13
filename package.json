@@ -14,7 +14,8 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "publish-packages": "pnpm -r publish --access public --no-git-checks",
-    "preversion": "exit 1"
+    "preversion": "exit 1",
+    "cs-publish": "pnpm install pnpm build && pnpm publish-packages"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",

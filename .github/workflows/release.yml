@@ -73,9 +73,7 @@ jobs:
         uses: changesets/action@v1
         with:
           version: false
-          publish: |
-            pnpm build
-            pnpm publish-packages
+          publish:  pnpm cs-publish
           commit: false
           createGithubReleases: true
         env:
