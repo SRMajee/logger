@@ -73,7 +73,10 @@ jobs:
         uses: changesets/action@v1
         with:
           version: false
-          publish: pnpm build && pnpm publish-packages
+          publish: |
+            pnpm install --no-frozen-lockfile
+            pnpm -w build
+            pnpm publish-packages
           commit: false
           createGithubReleases: true
         env:
