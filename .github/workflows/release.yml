@@ -74,8 +74,7 @@ jobs:
         with:
           version: false
           publish: |
-            pnpm install --no-frozen-lockfile
-            pnpm -w build
+            pnpm build
             pnpm publish-packages
           commit: false
           createGithubReleases: true
