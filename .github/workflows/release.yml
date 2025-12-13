@@ -40,7 +40,7 @@ jobs:
       - name: Detect pending changesets
         id: mode
         run: |
-          COUNT=$(ls .changeset/*.md 2>/dev/null | wc -l || true)
+          COUNT=$(ls .changeset/*.md 2>/dev/null | grep -v "README" | wc -l || true)
           if [ "$COUNT" -gt 0 ]; then
             echo "mode=version" >> $GITHUB_OUTPUT
             echo "Pending changesets → running VERSION PHASE."
