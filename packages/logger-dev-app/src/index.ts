@@ -5,11 +5,13 @@ import {
   MongoTransport,
   JsonFormatter,
   PrettyFormatter,
-  defaultContextManager
+  defaultContextManager,
 } from "@majee/logger";
 import { MongoClient } from "mongodb";
 
-const MONGO_URI = process.env.MONGO_URL || "mongodb://admin:password@localhost:27017?authSource=admin";
+const MONGO_URI =
+  process.env.MONGO_URL ||
+  "mongodb://admin:password@localhost:27017?authSource=admin";
 const DB_NAME = "logs_db";
 const COLLECTION = "app_logs";
 
@@ -25,33 +27,36 @@ async function main() {
       {
         transport: new ConsoleTransport(),
         formatter: new PrettyFormatter(),
-        minLevel: "info"
+        minLevel: "info",
       },
       {
         transport: new FileTransport("logs/app.log"),
-        minLevel: "debug"
+        minLevel: "debug",
       },
       {
         transport: new MongoTransport({
           client,
           dbName: DB_NAME,
-          collectionName: COLLECTION
+          collectionName: COLLECTION,
         }),
-        minLevel: "info"
-      }
-    ]
+        // minLevel: "info",
+      },
+    ],
   });
 
   // Example of context usage: request-level context
-  await logger.runWithContext({ requestId: "req-123", userId: "u-42" }, async () => {
-    logger.info("Handling request");
-    logger.debug("Some debug detail");
-    logger.error("An error occurred");
-  });
-
+  await logger.runWithContext(
+    { requestId: "req-123", userId: "u-42" },
+    async () => {
+      logger.info("Handling request");
+      logger.debug("Some debug detail");
+      logger.error("An error occurred");
+    }
+  );
+  await logger.flush();
   await client.close();
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error("Dev app failed", err);
 });

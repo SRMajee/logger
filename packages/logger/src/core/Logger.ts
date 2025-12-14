@@ -31,6 +31,9 @@ export class Logger {
   private formatter: IFormatter;
   private contextManager: ContextManager;
 
+  // ✅ 1. Track active async log operations
+  private pendingPromises: Set<Promise<any>> = new Set();
+
   constructor(options: LoggerOptions = {}) {
     this.level = options.level ?? "info";
     this.formatter = options.formatter ?? new JsonFormatter();
@@ -73,7 +76,23 @@ export class Logger {
       const fmt = formatter ?? this.formatter;
       const payload = fmt.format(entry);
 
-      void transport.log(payload);
+      // ✅ 2. Capture the result instead of using 'void'
+      const result = transport.log(payload);
+
+      // ✅ 3. If it is a Promise (Async Transport like Mongo), track it
+      if (result instanceof Promise) {
+        this.pendingPromises.add(result);
+
+        result
+          .catch((err) => {
+            // Optional: Prevent unhandled rejections if logging fails
+            console.error("Async transport failed:", err);
+          })
+          .finally(() => {
+            // Remove from tracking set when finished (success or fail)
+            this.pendingPromises.delete(result);
+          });
+      }
     }
   }
 
@@ -104,5 +123,14 @@ export class Logger {
    */
   getContext(): Context {
     return this.contextManager.getContext();
+  }
+
+  /**
+   * ✅ 4. New Method: Flush
+   * Waits for all pending async logs (like MongoDB writes) to complete.
+   * Call this before shutting down your application.
+   */
+  async flush(): Promise<void> {
+    await Promise.all(this.pendingPromises);
   }
 }
