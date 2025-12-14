@@ -23,7 +23,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node
+      - name: Setup Node (OIDC)
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -32,21 +32,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      # Detect version/pr or publish phase
       - name: Detect pending changesets
         id: mode
         run: |
           COUNT=$(ls .changeset/*.md 2>/dev/null | wc -l || true)
           if [ "$COUNT" -gt 0 ]; then
             echo "mode=version" >> $GITHUB_OUTPUT
-            echo "✔ VERSION PHASE"
           else
             echo "mode=publish" >> $GITHUB_OUTPUT
-            echo "✔ PUBLISH PHASE"
           fi
 
       # VERSION PHASE
-      - name: Changesets (version only)
+      - name: Changesets – Version only
         if: steps.mode.outputs.mode == 'version'
         uses: changesets/action@v1
         with:
@@ -59,17 +56,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # PUBLISH PHASE
-      - name: Verify npm auth method
-        run: npm whoami || echo "npm whoami skipped (OIDC publish still works)"
-
-      - name: Run Changesets (Publish only)
+      - name: Build packages
         if: steps.mode.outputs.mode == 'publish'
-        uses: changesets/action@v1
-        with:
-          version: ""
-          publish: pnpm cs-publish
-          commit: ""
-          createGithubReleases: true
+        run: pnpm -w build
+
+      - name: Publish packages to npm (OIDC)
+        if: steps.mode.outputs.mode == 'publish'
+        run: pnpm -r publish --access public
         env:
           NPM_CONFIG_REGISTRY: "https://registry.npmjs.org"
 
+      - name: Verify publish success
+        if: steps.mode.outputs.mode == 'publish'
+        run: |
+          echo "Published versions:"
+          npm view @majee/logger-core version
+          npm view @majee/logger version
