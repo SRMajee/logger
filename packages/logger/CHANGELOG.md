@@ -1,5 +1,16 @@
 # @majee/logger
 
+## 0.8.0
+
+### Minor Changes
+
+- Final check before major release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @majee/logger-core@0.8.0
+
 ## 0.7.0
 
 ### Minor Changes

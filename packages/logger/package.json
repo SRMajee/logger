@@ -8,7 +8,7 @@
     "url": "https://github.com/SRMajee/logger/issues"
   },
   "name": "@majee/logger",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": false,
   "main": "dist/entrypoints/index.js",
   "types": "dist/entrypoints/index.d.ts",
