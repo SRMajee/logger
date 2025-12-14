@@ -70,7 +70,7 @@ jobs:
         run: |
           rm -f ~/.npmrc || true
           rm -f $NPM_CONFIG_USERCONFIG || true
-
+          npm pkg fix
           cd packages/logger-core
           npm publish --access public --provenance --ignore-scripts
 
