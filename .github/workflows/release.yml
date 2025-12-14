@@ -68,11 +68,12 @@ jobs:
           unset NODE_AUTH_TOKEN
           export NPM_CONFIG_USERCONFIG=/dev/null
 
-          npm publish packages/logger-core --access public --provenance --ignore-scripts
-          npm publish packages/logger --access public --provenance --ignore-scripts
+          cd packages/logger-core
+          npm publish --access public --provenance --ignore-scripts
+          cd ../logger
+          npm publish --access public --provenance --ignore-scripts
         env:
           NPM_CONFIG_REGISTRY: "https://registry.npmjs.org"
-
 
       # VERIFY
       - name: Verify publish success
