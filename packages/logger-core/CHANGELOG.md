@@ -1,5 +1,11 @@
 # @majee/logger-core
 
+## 0.8.0
+
+### Minor Changes
+
+- [`4163a69`](https://github.com/SRMajee/logger/commit/4163a691bf6a0f826b314aa92954ac2c0eaa0a77) - CI/CD check
+
 ## 0.7.0
 
 ### Minor Changes
