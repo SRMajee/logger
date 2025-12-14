@@ -47,6 +47,8 @@ jobs:
             echo "mode=publish" >> $GITHUB_OUTPUT
             echo "No changesets → running PUBLISH PHASE."
           fi
+      - name: DEBUG ENV
+        run: env | sort
 
       # ----- VERSION PHASE: create version PR ----------------------
       - name: Changesets – Version only
@@ -60,6 +62,9 @@ jobs:
           createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: DEBUG ENV
+        run: env | sort
 
       # ----- PUBLISH PHASE: build again & publish with OIDC --------
       - name: Changesets – Publish only
