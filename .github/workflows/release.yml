@@ -51,7 +51,7 @@ jobs:
         uses: changesets/action@v1
         with:
           version: pnpm version-packages
-          publish: false
+          publish: ""
           commit: "chore: version packages"
           title: "Version Packages"
           createGithubReleases: false
@@ -59,12 +59,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # PUBLISH PHASE
-      - name: Build before publish
+      - name: Run Changesets (Publish only)
         if: steps.mode.outputs.mode == 'publish'
-        run: pnpm -w build
-
-      - name: Publish packages to npm (OIDC)
-        if: steps.mode.outputs.mode == 'publish'
-        run: pnpm -r publish --access public
+        uses: changesets/action@v1
+        with:
+          version: ""
+          publish: pnpm cs-publish
+          commit: ""
+          createGithubReleases: true
         env:
-          NPM_CONFIG_REGISTRY: "https://registry.npmjs.org"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
