@@ -64,16 +64,19 @@ jobs:
       # PUBLISH PHASE — OIDC publish via npm
       - name: Publish packages to npm (OIDC)
         if: steps.mode.outputs.mode == 'publish'
+        env:
+          NODE_AUTH_TOKEN: ""
+          NPM_CONFIG_REGISTRY: "https://registry.npmjs.org"
         run: |
-          unset NODE_AUTH_TOKEN
-          export NPM_CONFIG_USERCONFIG=/dev/null
+          rm -f ~/.npmrc || true
+          rm -f $NPM_CONFIG_USERCONFIG || true
 
           cd packages/logger-core
           npm publish --access public --provenance --ignore-scripts
+
           cd ../logger
           npm publish --access public --provenance --ignore-scripts
-        env:
-          NPM_CONFIG_REGISTRY: "https://registry.npmjs.org"
+
 
       # VERIFY
       - name: Verify publish success
