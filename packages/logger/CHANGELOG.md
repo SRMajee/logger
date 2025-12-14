@@ -1,18 +1,5 @@
 # @majee/logger
 
-## 0.8.0
-
-### Minor Changes
-
-- [`4119940`](https://github.com/SRMajee/logger/commit/4119940e749d5731402d3b4628769a796c5cd1a0) - asd
-
-- [`ef3b9a0`](https://github.com/SRMajee/logger/commit/ef3b9a0cf7f280bf8996477729c099f57bb4878d) - ac
-
-### Patch Changes
-
-- Updated dependencies [[`4119940`](https://github.com/SRMajee/logger/commit/4119940e749d5731402d3b4628769a796c5cd1a0), [`ef3b9a0`](https://github.com/SRMajee/logger/commit/ef3b9a0cf7f280bf8996477729c099f57bb4878d)]:
-  - @majee/logger-core@0.8.0
-
 ## 0.7.0
 
 ### Minor Changes

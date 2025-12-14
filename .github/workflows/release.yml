@@ -32,17 +32,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      # Detect VERSION vs PUBLISH phase
       - name: Detect pending changesets
         id: mode
         run: |
-          COUNT=$(ls .changeset/*.md 2>/dev/null | grep -v "README" | wc -l || true)
+          COUNT=$(find .changeset -type f -name "*.md" ! -name "README.md" | wc -l)
           if [ "$COUNT" -gt 0 ]; then
             echo "mode=version" >> $GITHUB_OUTPUT
           else
             echo "mode=publish" >> $GITHUB_OUTPUT
           fi
 
-      # VERSION PHASE
+      # VERSION PHASE — create PR only
       - name: Changesets – Version only
         if: steps.mode.outputs.mode == 'version'
         uses: changesets/action@v1
@@ -55,24 +56,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # PUBLISH PHASE
+      # PUBLISH PHASE — build first
       - name: Build packages
         if: steps.mode.outputs.mode == 'publish'
         run: pnpm -w build
 
+      # PUBLISH PHASE — OIDC publish via npm
       - name: Publish packages to npm (OIDC)
         if: steps.mode.outputs.mode == 'publish'
         run: |
-          export NPM_CONFIG_PROVENANCE=true
-          export NPM_CONFIG_USERCONFIG=/dev/null
           unset NODE_AUTH_TOKEN
-          pnpm -r publish --access public
+          export NPM_CONFIG_USERCONFIG=/dev/null
+          npm publish --workspaces --access public --provenance --ignore-scripts
         env:
           NPM_CONFIG_REGISTRY: "https://registry.npmjs.org"
 
+      # VERIFY
       - name: Verify publish success
         if: steps.mode.outputs.mode == 'publish'
         run: |
-          echo "Published versions:"
           npm view @majee/logger-core version
           npm view @majee/logger version
