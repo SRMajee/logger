@@ -6,16 +6,16 @@ on:
       - main
 
 permissions:
-  contents: write          # needed for version PR & tagging
+  contents: write
   pull-requests: write
-  id-token: write          # REQUIRED for OIDC token to npm
+  id-token: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -23,35 +23,30 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build packages
-        run: pnpm -w build
-
-      # ----- Detect release phase -----------------------------------
-      - name: Detect changesets
+      # Detect version/pr or publish phase
+      - name: Detect pending changesets
         id: mode
         run: |
-          REAL_COUNT=$(ls .changeset/*.md 2>/dev/null | grep -v "README" | wc -l || true)
-          if [ "$REAL_COUNT" -gt 0 ]; then
+          COUNT=$(ls .changeset/*.md 2>/dev/null | wc -l || true)
+          if [ "$COUNT" -gt 0 ]; then
             echo "mode=version" >> $GITHUB_OUTPUT
-            echo "Pending changesets → running VERSION PHASE."
+            echo "✔ VERSION PHASE"
           else
             echo "mode=publish" >> $GITHUB_OUTPUT
-            echo "No changesets → running PUBLISH PHASE."
+            echo "✔ PUBLISH PHASE"
           fi
-      - name: DEBUG ENV
-        run: env | sort
 
-      # ----- VERSION PHASE: create version PR ----------------------
-      - name: Changesets – Version only
+      # VERSION PHASE
+      - name: Changesets (version only)
         if: steps.mode.outputs.mode == 'version'
         uses: changesets/action@v1
         with:
@@ -63,17 +58,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: DEBUG ENV
-        run: env | sort
-
-      # ----- PUBLISH PHASE: build again & publish with OIDC --------
-      - name: Changesets – Publish only
+      # PUBLISH PHASE
+      - name: Build before publish
         if: steps.mode.outputs.mode == 'publish'
-        uses: changesets/action@v1
-        with:
-          version: false
-          publish: pnpm cs-publish
-          commit: false
-          createGithubReleases: true
+        run: pnpm -w build
+
+      - name: Publish packages to npm (OIDC)
+        if: steps.mode.outputs.mode == 'publish'
+        run: pnpm -r publish --access public
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_REGISTRY: "https://registry.npmjs.org"
