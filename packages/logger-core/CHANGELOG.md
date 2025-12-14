@@ -1,11 +1,5 @@
 # @majee/logger-core
 
-## 0.8.0
-
-### Minor Changes
-
-- [`93ea5ab`](https://github.com/SRMajee/logger/commit/93ea5ab91ee3b3cc701003bea2f3bde628c54ddd) - sadf
-
 ## 0.7.0
 
 ### Minor Changes

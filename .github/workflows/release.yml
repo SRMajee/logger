@@ -63,8 +63,9 @@ jobs:
       - name: Publish packages to npm (OIDC)
         if: steps.mode.outputs.mode == 'publish'
         run: |
+          export NPM_CONFIG_PROVENANCE=true
+          export NPM_CONFIG_USERCONFIG=/dev/null
           unset NODE_AUTH_TOKEN
-          unset NPM_CONFIG_USERCONFIG
           pnpm -r publish --access public
         env:
           NPM_CONFIG_REGISTRY: "https://registry.npmjs.org"
