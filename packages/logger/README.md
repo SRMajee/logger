@@ -52,6 +52,7 @@ const logger = new Logger({
 logger.info("Application started");
 logger.debug("This will not be shown at level=info");
 logger.error("Something went wrong");
+await logger.flush();
 ```
 
 ---
@@ -129,7 +130,7 @@ async function main() {
   logger.info("Info log (console + file)");
   logger.warn("Warn log (console + file + Mongo)");
   logger.error("Error log (console + file + Mongo)");
-
+  await logger.flush();
   await client.close();
 }
 

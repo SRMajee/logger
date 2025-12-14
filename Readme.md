@@ -60,6 +60,7 @@ logger.info("App started");
 logger.debug("Debug details");
 logger.warn("Something looks off");
 logger.error("Something failed");
+await logger.flush();
 ```
 
 # 🛠️ Development Setup & Workflow (Monorepo)
@@ -201,7 +202,7 @@ Or manually: `git commit -m "feat: add new transport"`
 
 ## ✅ 9. CI/CD & Automated Releases 🚀
 
-We use **GitHub Actions** and **Changesets** to handle testing and publishing. **Do not publish manually.**
+We use **GitHub Actions** and **Changesets** to handle testing and publishing. 
 
 ### The Workflows
 
@@ -210,11 +211,11 @@ We use **GitHub Actions** and **Changesets** to handle testing and publishing. *
       * Builds all packages.
       * Spins up a **MongoDB Service Container**.
       * Runs tests against the container.
-2.  **Release (`release.yml`):** Runs on pushes to `main`.
+<!-- 2.  **Release (`release.yml`):** Runs on pushes to `main`.
       * Creates a "Version Packages" PR if new changesets exist.
-      * Publishes to NPM automatically when that PR is merged.
+      * Publishes to NPM automatically when that PR is merged. -->
 
-### How to Release (The "Changeset" Flow)
+<!-- ### How to Release (The "Changeset" Flow)
 
 When you make code changes, follow this flow:
 
@@ -238,7 +239,7 @@ When you make code changes, follow this flow:
       * **Review & Merge** that PR.
       * The bot will automatically tag the release and publish it to NPM.
 
------
+----- -->
 
 ## ✅ 10. Typical Daily Dev Loop (Recommended)
 

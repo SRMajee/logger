@@ -10,3 +10,4 @@ build
 
 # Environment variables
 # .env
+logger-dev-app/logs/
