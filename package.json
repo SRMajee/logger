@@ -40,5 +40,6 @@
   },
   "dependencies": {
     "@changesets/changelog-github": "^0.5.2"
-  }
+  },
+  "version": ""
 }
