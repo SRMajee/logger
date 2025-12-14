@@ -1,4 +1,12 @@
 {
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SRMajee/logger.git"
+  },
+  "homepage": "https://github.com/SRMajee/logger",
+  "bugs": {
+    "url": "https://github.com/SRMajee/logger/issues"
+  },
   "name": "@majee/logger-core",
   "version": "0.7.0",
   "private": false,
