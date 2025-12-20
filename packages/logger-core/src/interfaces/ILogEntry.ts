@@ -6,4 +6,11 @@ export interface ILogEntry {
   message: string;
   timestamp: number;
   context?: Context;
+
+  // 🆕 optional tracing (V3-ready)
+  traceId?: string;
+  spanId?: string;
+
+  // 🆕 schema metadata
+  schemaVersion?: number;
 }

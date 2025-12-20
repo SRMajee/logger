@@ -9,50 +9,102 @@ import {
   ConsoleTransport,
   type Context,
   defaultContextManager,
-  type ContextManager
+  type ContextManager,
+  AsyncQueue,
+  formatEntry,
+  writeToTransport,
+  SchemaValidator,
 } from "@majee/logger-core";
 
 export interface TransportConfig {
   transport: ITransport;
   formatter?: IFormatter;
-  minLevel?: LogLevel; // optional per-transport filter
+  minLevel?: LogLevel;
+
+  retry?: {
+    retries: number;
+    initialDelayMs: number;
+    maxDelayMs?: number;
+  };
+
+  concurrency?: number;
+  maxPending?: number;
 }
 
 export interface LoggerOptions {
-  level?: LogLevel;               // global minimum level
-  transports?: TransportConfig[]; // per-transport config
-  formatter?: IFormatter;         // global default formatter
+  level?: LogLevel;
+  formatter?: IFormatter;
+  transports?: TransportConfig[];
   contextManager?: ContextManager;
 }
 
 export class Logger {
   private level: LogLevel;
-  private transports: TransportConfig[];
   private formatter: IFormatter;
   private contextManager: ContextManager;
+  private validator: SchemaValidator;
 
-  // ✅ 1. Track active async log operations
-  private pendingPromises: Set<Promise<any>> = new Set();
+  // 🔥 One queue PER transport
+  private transportQueues: AsyncQueue<ILogEntry>[] = [];
 
   constructor(options: LoggerOptions = {}) {
     this.level = options.level ?? "info";
     this.formatter = options.formatter ?? new JsonFormatter();
     this.contextManager = options.contextManager ?? defaultContextManager;
+    this.validator = new SchemaValidator({
+      schemaVersion: 1,
+      maxContextKeys: 50,
+      maxContextSizeBytes: 8 * 1024,
+      requireTraceId: false,
+      onError: (err) => {
+        console.error("[logger] schema violation:", err.message);
+      },
+    });
 
-    this.transports =
-      options.transports ??
-      [
-        {
-          transport: new ConsoleTransport(),
-          formatter: new JsonFormatter()
-        }
-      ];
+    const transports = options.transports ?? [
+      {
+        transport: new ConsoleTransport(),
+        formatter: new JsonFormatter(),
+      },
+    ];
+
+    // 🚀 Create isolated queue per transport
+    for (const cfg of transports) {
+      const queue = new AsyncQueue<ILogEntry>({
+        concurrency: cfg.concurrency ?? 1,
+        maxPending: cfg.maxPending ?? 5000,
+        dropPolicy: "drop-new",
+
+        worker: async (entry) => {
+          if (!this.shouldLog(entry.level, cfg.minLevel)) return;
+
+          const formatter = cfg.formatter ?? this.formatter;
+
+          let formatted;
+          try {
+            formatted = formatEntry(entry, formatter);
+          } catch (err) {
+            console.error("Formatter failed:", err);
+            return;
+          }
+
+          try {
+            await writeToTransport(formatted, {
+              transport: cfg.transport,
+              retry: cfg.retry,
+            });
+          } catch (err) {
+            console.error("Transport failed after retries:", err);
+          }
+        },
+      });
+
+      this.transportQueues.push(queue);
+    }
   }
 
   private shouldLog(level: LogLevel, minLevel?: LogLevel): boolean {
-    const globalOk = LogLevels[level] >= LogLevels[this.level];
-    if (!globalOk) return false;
-
+    if (LogLevels[level] < LogLevels[this.level]) return false;
     if (!minLevel) return true;
     return LogLevels[level] >= LogLevels[minLevel];
   }
@@ -67,70 +119,52 @@ export class Logger {
       level,
       message,
       timestamp: now(),
-      context: this.currentContext()
+      context: this.currentContext(),
     };
 
-    for (const { transport, formatter, minLevel } of this.transports) {
-      if (!this.shouldLog(level, minLevel)) continue;
+    // 🛑 Schema validation (fail fast)
+    if (!this.validator.validate(entry)) {
+      return;
+    }
 
-      const fmt = formatter ?? this.formatter;
-      const payload = fmt.format(entry);
-
-      // ✅ 2. Capture the result instead of using 'void'
-      const result = transport.log(payload);
-
-      // ✅ 3. If it is a Promise (Async Transport like Mongo), track it
-      if (result instanceof Promise) {
-        this.pendingPromises.add(result);
-
-        result
-          .catch((err) => {
-            // Optional: Prevent unhandled rejections if logging fails
-            console.error("Async transport failed:", err);
-          })
-          .finally(() => {
-            // Remove from tracking set when finished (success or fail)
-            this.pendingPromises.delete(result);
-          });
-      }
+    // enqueue to all transport queues
+    for (const q of this.transportQueues) {
+      q.enqueue(entry);
     }
   }
 
-  // Public logging API
-  debug(msg: string): void { this.emit("debug", msg); }
-  info(msg: string): void { this.emit("info", msg); }
-  warn(msg: string): void { this.emit("warn", msg); }
-  error(msg: string): void { this.emit("error", msg); }
+  debug(msg: string): void {
+    this.emit("debug", msg);
+  }
+  info(msg: string): void {
+    this.emit("info", msg);
+  }
+  warn(msg: string): void {
+    this.emit("warn", msg);
+  }
+  error(msg: string): void {
+    this.emit("error", msg);
+  }
 
-
-  /**
-   * Run a function within a specific context. All logs inside
-   * will automatically include this context.
-   */
   runWithContext<T>(ctx: Context, fn: () => T): T {
     return this.contextManager.runWithContext(ctx, fn);
   }
 
-  /**
-   * Merge additional fields into current context in this async chain.
-   */
   mergeContext(partial: Context): void {
     this.contextManager.mergeContext(partial);
   }
 
-  /**
-   * Get the current context snapshot.
-   */
   getContext(): Context {
     return this.contextManager.getContext();
   }
 
-  /**
-   * ✅ 4. New Method: Flush
-   * Waits for all pending async logs (like MongoDB writes) to complete.
-   * Call this before shutting down your application.
-   */
   async flush(): Promise<void> {
-    await Promise.all(this.pendingPromises);
+    await Promise.all(this.transportQueues.map((q) => q.flush()));
+  }
+
+  async shutdown(): Promise<void> {
+    await Promise.all(
+      this.transportQueues.map((q) => q.shutdown({ drain: true }))
+    );
   }
 }

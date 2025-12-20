@@ -21,17 +21,20 @@ async function main() {
 
   const logger = new Logger({
     level: "debug",
-    formatter: new JsonFormatter(), // global default (used by Mongo & file)
+    formatter: new JsonFormatter(),
     contextManager: defaultContextManager,
     transports: [
       {
         transport: new ConsoleTransport(),
         formatter: new PrettyFormatter(),
         minLevel: "info",
+        concurrency: 1,
       },
       {
         transport: new FileTransport("logs/app.log"),
         minLevel: "debug",
+        concurrency: 1,
+        maxPending: 5000,
       },
       {
         transport: new MongoTransport({
@@ -39,12 +42,18 @@ async function main() {
           dbName: DB_NAME,
           collectionName: COLLECTION,
         }),
-        // minLevel: "info",
+        minLevel: "info",
+        concurrency: 2,
+        maxPending: 10_000,
+        retry: {
+          retries: 3,
+          initialDelayMs: 100,
+          maxDelayMs: 1000,
+        },
       },
     ],
   });
 
-  // Example of context usage: request-level context
   await logger.runWithContext(
     { requestId: "req-123", userId: "u-42" },
     async () => {
@@ -53,6 +62,12 @@ async function main() {
       logger.error("An error occurred");
     }
   );
+  await logger.runWithContext({ userId: "u1", password: "secret" }, async () =>
+    logger.info("hello")
+  );
+logger.mergeContext({ big: "x".repeat(100_000) });
+logger.mergeContext({ traceId: "abc", spanId: "def" });
+
   await logger.flush();
   await client.close();
 }
