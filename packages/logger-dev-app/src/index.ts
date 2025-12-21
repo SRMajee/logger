@@ -8,6 +8,7 @@ import {
   defaultContextManager,
 } from "@majee/logger";
 import { MongoClient } from "mongodb";
+import { SchemaValidator, defaultValidator, defaultSampler } from '@majee/logger-core';
 
 const MONGO_URI =
   process.env.MONGO_URL ||
@@ -23,11 +24,20 @@ async function main() {
     level: "debug",
     formatter: new JsonFormatter(),
     contextManager: defaultContextManager,
+    validator: defaultValidator,
+    sampler: defaultSampler,
+    // validator: new SchemaValidator({
+    // maxContextSizeBytes: 32 * 1024,
+    // schemaVersion: 2,
+    // onError: () => {
+    //   // custom reporting
+    // },
+    // }),
     transports: [
       {
         transport: new ConsoleTransport(),
         formatter: new PrettyFormatter(),
-        minLevel: "info",
+        minLevel: "debug",
         concurrency: 1,
       },
       {
@@ -42,7 +52,7 @@ async function main() {
           dbName: DB_NAME,
           collectionName: COLLECTION,
         }),
-        minLevel: "info",
+        minLevel: "debug",
         concurrency: 2,
         maxPending: 10_000,
         retry: {
@@ -54,19 +64,30 @@ async function main() {
     ],
   });
 
-  await logger.runWithContext(
-    { requestId: "req-123", userId: "u-42" },
-    async () => {
-      logger.info("Handling request");
-      logger.debug("Some debug detail");
-      logger.error("An error occurred");
-    }
-  );
+  // await logger.runWithContext(
+  //   { requestId: "req-123", userId: "u-42" },
+  //   async () => {
+  //     logger.info("Handling request");
+  //     logger.debug("Some debug detail");
+  //     logger.error("An error occurred");
+  //   }
+  // );
   await logger.runWithContext({ userId: "u1", password: "secret" }, async () =>
     logger.info("hello")
   );
-logger.mergeContext({ big: "x".repeat(100_000) });
-logger.mergeContext({ traceId: "abc", spanId: "def" });
+  logger.mergeContext({ big: "x".repeat(100_000) });
+  // logger.mergeContext({ traceId: "abc", spanId: "def" });
+  // console.log("---- COMPOSITE SAMPLER TEST ----");
+
+  for (let i = 0; i < 20; i++) {
+    logger.error("Composite failure" );
+  }
+
+  for (let i = 0; i < 50; i++) {
+    logger.debug("Debug noise");
+  }
+
+  await logger.flush();
 
   await logger.flush();
   await client.close();

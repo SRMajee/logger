@@ -1,0 +1,56 @@
+import {
+  Logger,
+  ConsoleTransport,
+  FileTransport,
+  MongoTransport,
+  JsonFormatter,
+  PrettyFormatter,
+  defaultContextManager,
+} from "@majee/logger";
+import { MongoClient } from "mongodb";
+import {
+  SchemaValidator,
+  defaultValidator,
+  defaultSampler,
+} from "@majee/logger-core";
+
+const MONGO_URI =
+  process.env.MONGO_URL ||
+  "mongodb://admin:password@localhost:27017?authSource=admin";
+const DB_NAME = "logs_db";
+const COLLECTION = "app_logs";
+async function main() {
+  const client = new MongoClient(MONGO_URI);
+  await client.connect();
+
+  const logger = new Logger({
+    transports: [
+      {
+        transport: new MongoTransport({
+          client,
+          dbName: DB_NAME,
+          collectionName: COLLECTION,
+        }),
+        concurrency: 2,
+        maxPending: 10_000,
+        retry: {
+          retries: 3,
+          initialDelayMs: 100,
+          maxDelayMs: 1000,
+        },
+      },
+    ],
+  });
+
+  for (let i = 0; i < 20; i++) {
+    logger.info("db log");
+  }
+
+  logger.info("hello");
+  await logger.flush();
+  await client.close();
+}
+
+main().catch((err) => {
+  console.error("Dev app failed", err);
+});

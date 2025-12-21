@@ -14,6 +14,12 @@ import {
   formatEntry,
   writeToTransport,
   SchemaValidator,
+  CompositeSampler,
+  RateLimitSampler,
+  DedupSampler,
+  ProbabilisticSampler,
+  SamplerConfig,
+  type Sampler,
 } from "@majee/logger-core";
 
 export interface TransportConfig {
@@ -36,13 +42,16 @@ export interface LoggerOptions {
   formatter?: IFormatter;
   transports?: TransportConfig[];
   contextManager?: ContextManager;
+  validator?: SchemaValidator;
+  sampler?: SamplerConfig;
 }
 
 export class Logger {
   private level: LogLevel;
   private formatter: IFormatter;
-  private contextManager: ContextManager;
-  private validator: SchemaValidator;
+  private contextManager?: ContextManager;
+  private validator?: SchemaValidator;
+  private sampler: CompositeSampler | null;
 
   // 🔥 One queue PER transport
   private transportQueues: AsyncQueue<ILogEntry>[] = [];
@@ -50,17 +59,9 @@ export class Logger {
   constructor(options: LoggerOptions = {}) {
     this.level = options.level ?? "info";
     this.formatter = options.formatter ?? new JsonFormatter();
-    this.contextManager = options.contextManager ?? defaultContextManager;
-    this.validator = new SchemaValidator({
-      schemaVersion: 1,
-      maxContextKeys: 50,
-      maxContextSizeBytes: 8 * 1024,
-      requireTraceId: false,
-      onError: (err) => {
-        console.error("[logger] schema violation:", err.message);
-      },
-    });
-
+    this.contextManager = options.contextManager;
+    this.validator = options.validator;
+    this.sampler = options.sampler ? this.buildSampler(options.sampler) : null;
     const transports = options.transports ?? [
       {
         transport: new ConsoleTransport(),
@@ -102,6 +103,27 @@ export class Logger {
       this.transportQueues.push(queue);
     }
   }
+  private buildSampler(config?: SamplerConfig): CompositeSampler {
+    const samplers: Sampler[] = [];
+
+    if (config?.rateLimit) {
+      samplers.push(new RateLimitSampler(config.rateLimit));
+    }
+
+    if (config?.dedup) {
+      samplers.push(new DedupSampler(config.dedup));
+    }
+
+    if (config?.probabilistic) {
+      samplers.push(new ProbabilisticSampler(config.probabilistic));
+    }
+
+    if (config?.custom) {
+      samplers.push(...config.custom);
+    }
+
+    return new CompositeSampler(samplers);
+  }
 
   private shouldLog(level: LogLevel, minLevel?: LogLevel): boolean {
     if (LogLevels[level] < LogLevels[this.level]) return false;
@@ -110,24 +132,30 @@ export class Logger {
   }
 
   private currentContext(): Context | undefined {
+    if (!this.contextManager) return undefined;
+
     const ctx = this.contextManager.getContext();
     return Object.keys(ctx).length ? ctx : undefined;
   }
 
   private emit(level: LogLevel, message: string): void {
+    const rawContext = this.currentContext();
     const entry: ILogEntry = {
       level,
       message,
       timestamp: now(),
-      context: this.currentContext(),
+      context: rawContext ? structuredClone(rawContext) : undefined,
     };
 
-    // 🛑 Schema validation (fail fast)
-    if (!this.validator.validate(entry)) {
+    // 🛑 schema validation
+    if (this.validator && !this.validator.validate(entry)) {
       return;
     }
+    Object.freeze(entry);
+    if (entry.context) Object.freeze(entry.context);
+    // 🛑 sampling
+    if (this.sampler && this.sampler.decide(entry) === "drop") return;
 
-    // enqueue to all transport queues
     for (const q of this.transportQueues) {
       q.enqueue(entry);
     }
@@ -147,14 +175,20 @@ export class Logger {
   }
 
   runWithContext<T>(ctx: Context, fn: () => T): T {
+    if (!this.contextManager) {
+      // no context manager → just run
+      return fn();
+    }
     return this.contextManager.runWithContext(ctx, fn);
   }
 
   mergeContext(partial: Context): void {
+    if (!this.contextManager) return;
     this.contextManager.mergeContext(partial);
   }
 
   getContext(): Context {
+    if (!this.contextManager) return {};
     return this.contextManager.getContext();
   }
 

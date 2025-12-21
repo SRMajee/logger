@@ -52,6 +52,8 @@ export class SchemaValidator {
     requireTraceId?: boolean;
     onError?: (error: SchemaValidationError) => void;
   };
+  private lastErrorAt = new Map<string, number>();
+  private ERROR_DEDUP_WINDOW_MS = 1000;
 
   constructor(options: SchemaValidatorOptions = {}) {
     this.enabled = options.enabled ?? true;
@@ -108,7 +110,8 @@ export class SchemaValidator {
         return this.fail("Context must be an object", entry);
       }
 
-      this.sanitizeContext(e.context);
+      const ok = this.sanitizeContext(e.context);
+      if (!ok) return false;
     }
 
     // ---- schema metadata ----
@@ -116,8 +119,7 @@ export class SchemaValidator {
 
     return true;
   }
-
-  private sanitizeContext(ctx: Context): void {
+  private sanitizeContext(ctx: Context): boolean {
     // strip unsafe keys
     for (const key of Object.keys(ctx)) {
       if (this.opts.unsafeKeys.includes(key)) {
@@ -125,22 +127,35 @@ export class SchemaValidator {
       }
     }
 
-    // key count limit
     if (Object.keys(ctx).length > this.opts.maxContextKeys) {
-      throw new Error("Context exceeds max key limit");
+      this.fail(
+        `Context key count exceeds limit ${this.opts.maxContextKeys}`,
+        ctx
+      );
+      return false;
     }
 
-    // size limit
     const size = byteSize(ctx);
     if (size > this.opts.maxContextSizeBytes) {
-      throw new Error(
-        `Context size ${size} exceeds limit ${this.opts.maxContextSizeBytes}`
+      this.fail(
+        `Context size ${size} exceeds limit ${this.opts.maxContextSizeBytes}`,
+        ctx
       );
+      return false;
     }
+
+    return true;
   }
 
   private fail(message: string, entry: unknown): false {
-    this.opts.onError?.({ message, entry });
+    const now = Date.now();
+    const last = this.lastErrorAt.get(message);
+
+    if (!last || now - last > this.ERROR_DEDUP_WINDOW_MS) {
+      this.lastErrorAt.set(message, now);
+      this.opts.onError?.({ message, entry });
+    }
+
     return false;
   }
 }
