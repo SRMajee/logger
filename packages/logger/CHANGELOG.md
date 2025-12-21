@@ -1,5 +1,16 @@
 # @majee/logger
 
+## 1.1.0
+
+### Minor Changes
+
+- Added Sampler, Validator, Async Pipeline
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @majee/logger-core@1.1.0
+
 ## 1.0.0
 
 ### Major Changes
